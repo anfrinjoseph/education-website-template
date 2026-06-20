@@ -601,19 +601,17 @@ https://templatemo.com/tm-569-edu-meeting
 
       <!-- SVG path: two overlapping paths, one dim (always visible), one bright
            (revealed progressively on scroll via stroke-dashoffset, see Part 4 JS) -->
-      <svg class="journey-svg" id="journeySvg" viewBox="0 0 800 2600" preserveAspectRatio="none">
+      <svg class="journey-svg" id="journeySvg" viewBox="0 866 800 1734" preserveAspectRatio="none">
         <path id="journeyPathDim" class="journey-path-dim"
-              d="M400,0 C400,80 250,120 250,200 C250,280 480,300 480,380
-                 C480,460 230,480 230,560 C230,660 520,640 520,760
-                 C520,860 260,880 260,980 C260,1080 540,1060 540,1180
+              d="M400,866
+                 C380,910 260,920 260,980 C260,1080 540,1060 540,1180
                  C540,1280 280,1300 280,1400 C280,1500 500,1480 500,1600
                  C500,1700 300,1720 300,1820 C300,1920 480,1900 480,2000
-                 C480,2100 350,2120 350,2220 C350,2350 400,2400 400,2480
-                 L400,2600" />
+                  C480,2100 350,2120 350,2220 C350,2350 400,2400 400,2480
+                  L400,2600" />
         <path id="journeyPathBright" class="journey-path-bright"
-              d="M400,0 C400,80 250,120 250,200 C250,280 480,300 480,380
-                 C480,460 230,480 230,560 C230,660 520,640 520,760
-                 C520,860 260,880 260,980 C260,1080 540,1060 540,1180
+              d="M400,866
+                 C380,910 260,920 260,980 C260,1080 540,1060 540,1180
                  C540,1280 280,1300 280,1400 C280,1500 500,1480 500,1600
                  C500,1700 300,1720 300,1820 C300,1920 480,1900 480,2000
                  C480,2100 350,2120 350,2220 C350,2350 400,2400 400,2480
@@ -621,7 +619,7 @@ https://templatemo.com/tm-569-edu-meeting
       </svg>
 
       <!-- Milestone 1: 2009 (LEFT) -->
-      <div class="milestone milestone-right" data-milestone="0" style="top: 4%;">
+      <div class="milestone milestone-right" data-milestone="0" style="top: 12%;">
         <div class="milestone-media">
           <div class="img-placeholder">2009 &mdash; founding photo<br><span>add later</span></div>
         </div>
@@ -631,12 +629,12 @@ https://templatemo.com/tm-569-edu-meeting
           <p class="milestone-text">A dream took shape in Vaikom. A small classroom, a handful of students, and a vision to create meaningful opportunities through education.</p>
         </div>
       </div>
-      <div class="milestone-node" style="top: 9%; left: 50%; transform: translate(-50%, -50%); position: absolute;">
+      <div class="milestone-node" style="top: calc(12% - 1cm); left: 50%; transform: translate(-50%, -50%); position: absolute;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c0-6 0-10 0-12M7 14c2-2 5-2 5-2s0 3-2 5-5-1-3-3zM17 8c-2 2-5 2-5 2s0-3 2-5 5 1 3 3z"/></svg>
       </div>
 
       <!-- Milestone 2: 2011 (RIGHT) -->
-      <div class="milestone milestone-left" data-milestone="1" style="top: 16%;">
+      <div class="milestone milestone-left" data-milestone="1" style="top: 24%;">
         <div class="milestone-media">
           <div class="img-placeholder">2011 &mdash; early batch photo<br><span>add later</span></div>
         </div>
@@ -651,7 +649,7 @@ https://templatemo.com/tm-569-edu-meeting
       </div>
 
       <!-- Milestone 3: 2014 (LEFT) -->
-      <div class="milestone milestone-right" data-milestone="2" style="top: 30%;">
+      <div class="milestone milestone-right" data-milestone="2" style="top: 36%;">
         <div class="milestone-media">
           <div class="img-placeholder">2014 &mdash; campus photo<br><span>add later</span></div>
         </div>
@@ -666,7 +664,7 @@ https://templatemo.com/tm-569-edu-meeting
       </div>
 
       <!-- Milestone 4: 2018 (RIGHT) -->
-      <div class="milestone milestone-left" data-milestone="3" style="top: 44%;">
+      <div class="milestone milestone-left" data-milestone="3" style="top: 48%;">
         <div class="milestone-media">
           <div class="img-placeholder">2018 &mdash; community photo<br><span>add later</span></div>
         </div>
@@ -681,7 +679,7 @@ https://templatemo.com/tm-569-edu-meeting
       </div>
 
       <!-- Milestone 5: 2022 (LEFT) -->
-      <div class="milestone milestone-right" data-milestone="4" style="top: 58%;">
+      <div class="milestone milestone-right" data-milestone="4" style="top: 60%;">
         <div class="milestone-media">
           <div class="img-placeholder">2022 &mdash; app/digital photo<br><span>add later</span></div>
         </div>
@@ -2537,26 +2535,30 @@ https://templatemo.com/tm-569-edu-meeting
       if (!wrap || !brightPath) return;
 
       var pathLength = brightPath.getTotalLength();
-      brightPath.style.strokeDasharray = pathLength;
-      brightPath.style.strokeDashoffset = pathLength;
+      var windowRatio = 0.5;
 
       function updateProgress() {
         var rect = wrap.getBoundingClientRect();
         var vh = window.innerHeight;
 
-        var total = rect.height + vh;
-        var scrolled = vh - rect.top;
-        var progress = scrolled / total;
-        progress = Math.max(0, Math.min(1, progress));
+        var screenCenter = vh / 2;
+        var centerOnPath = screenCenter - rect.top;
+        var centerPct = centerOnPath / rect.height;
+        centerPct = Math.max(0, Math.min(1, centerPct));
 
-        brightPath.style.strokeDashoffset = pathLength * (1 - progress);
+        var windowLen = pathLength * windowRatio;
+        var offset = centerPct * pathLength - windowLen / 2;
+        offset = Math.max(0, Math.min(pathLength - windowLen, offset));
+
+        brightPath.style.strokeDasharray = windowLen + ' ' + (pathLength - windowLen);
+        brightPath.style.strokeDashoffset = offset;
 
         milestones.forEach(function (m) {
           var mTopPct = parseFloat(m.style.top) / 100;
-          if (progress >= mTopPct + 0.04) {
+          if (centerPct > mTopPct + 0.04) {
             m.classList.remove('is-active');
             m.classList.add('is-visited');
-          } else if (progress >= mTopPct - 0.02) {
+          } else if (centerPct >= mTopPct - 0.03) {
             m.classList.add('is-active');
             m.classList.remove('is-visited');
           } else {
@@ -2564,7 +2566,7 @@ https://templatemo.com/tm-569-edu-meeting
           }
         });
 
-        if (destination && progress > 0.92) {
+        if (destination && centerPct > 0.92) {
           destination.classList.add('is-active');
         }
       }
