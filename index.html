@@ -599,6 +599,14 @@ https://templatemo.com/tm-569-edu-meeting
     <!-- The winding path + milestones live inside this wrapper -->
     <div class="journey-path-wrap" id="journeyPathWrap">
 
+      <!-- Memory background images opposite each milestone -->
+      <div class="memory-bg memory-left"  data-memory="1" style="top: calc(8% - 100px); left: calc(2% - 180px); width: 51.84%; height: 259px;"><img src="assets/images/memory1.png" alt=""></div>
+      <div class="memory-bg memory-right" data-memory="2" style="top: calc(24% - 120px); right: calc(2% - 210px); width: 50.4%; height: 252px;"><img src="assets/images/memory2.png" alt=""></div>
+      <div class="memory-bg memory-left"  data-memory="3" style="top: calc(36% - 130px); left: calc(2% - 170px); width: 42%; height: 210px;"><img src="assets/images/memory3.png" alt=""></div>
+      <div class="memory-bg memory-right" data-memory="4" style="top: calc(48% - 80px); right: calc(2% - 30px); width: 42%; height: 210px;"><img src="assets/images/memory4.png" alt=""></div>
+      <div class="memory-bg memory-left"  data-memory="1" style="top: calc(60% - 50px); left: calc(2% - 50px); width: 50.4%; height: 252px;"><img src="assets/images/memory1.png" alt=""></div>
+      <div class="memory-bg memory-right" data-memory="2" style="top: calc(72% + 80px); width: 50.4%; height: 252px;"><img src="assets/images/memory2.png" alt=""></div>
+
       <!-- SVG path: two overlapping paths, one dim (always visible), one bright
            (revealed progressively on scroll via stroke-dashoffset, see Part 4 JS) -->
       <svg class="journey-svg" id="journeySvg" viewBox="0 866 800 1734" preserveAspectRatio="none">
@@ -621,22 +629,22 @@ https://templatemo.com/tm-569-edu-meeting
       <!-- Milestone 1: 2009 (LEFT) -->
       <div class="milestone milestone-right" data-milestone="0" style="top: 12%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2009 &mdash; founding photo<br><span>add later</span></div>
+          <img src="assets/images/mcard1.png" alt="2009 founding photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2009</span>
           <h3 class="milestone-title">The Beginning</h3>
           <p class="milestone-text">A dream took shape in Vaikom. A small classroom, a handful of students, and a vision to create meaningful opportunities through education.</p>
         </div>
-      </div>
-      <div class="milestone-node" style="top: calc(12% - 1cm); left: 50%; transform: translate(-50%, -50%); position: absolute;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c0-6 0-10 0-12M7 14c2-2 5-2 5-2s0 3-2 5-5-1-3-3zM17 8c-2 2-5 2-5 2s0-3 2-5 5 1 3 3z"/></svg>
+        <div class="milestone-node">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c0-6 0-10 0-12M7 14c2-2 5-2 5-2s0 3-2 5-5-1-3-3zM17 8c-2 2-5 2-5 2s0-3 2-5 5 1 3 3z"/></svg>
+        </div>
       </div>
 
       <!-- Milestone 2: 2011 (RIGHT) -->
       <div class="milestone milestone-left" data-milestone="1" style="top: 24%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2011 &mdash; early batch photo<br><span>add later</span></div>
+          <img src="assets/images/mcard2.png" alt="2011 early batch photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2011</span>
@@ -651,7 +659,7 @@ https://templatemo.com/tm-569-edu-meeting
       <!-- Milestone 3: 2014 (LEFT) -->
       <div class="milestone milestone-right" data-milestone="2" style="top: 36%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2014 &mdash; campus photo<br><span>add later</span></div>
+          <img src="assets/images/mcard3.png" alt="2014 campus photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2014</span>
@@ -666,7 +674,7 @@ https://templatemo.com/tm-569-edu-meeting
       <!-- Milestone 4: 2018 (RIGHT) -->
       <div class="milestone milestone-left" data-milestone="3" style="top: 48%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2018 &mdash; community photo<br><span>add later</span></div>
+          <img src="assets/images/mcard4.png" alt="2018 community photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2018</span>
@@ -681,7 +689,7 @@ https://templatemo.com/tm-569-edu-meeting
       <!-- Milestone 5: 2022 (LEFT) -->
       <div class="milestone milestone-right" data-milestone="4" style="top: 60%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2022 &mdash; app/digital photo<br><span>add later</span></div>
+          <img src="assets/images/mcard5.png" alt="2022 app digital photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2022</span>
@@ -696,7 +704,7 @@ https://templatemo.com/tm-569-edu-meeting
       <!-- Milestone 6: 2025+ (RIGHT) -->
       <div class="milestone milestone-left" data-milestone="5" style="top: 72%;">
         <div class="milestone-media">
-          <div class="img-placeholder">2025+ &mdash; recent achievement photo<br><span>add later</span></div>
+          <img src="assets/images/mcard6.png" alt="2025 recent achievement photo">
         </div>
         <div class="milestone-content">
           <span class="milestone-year">2025+</span>
@@ -2541,6 +2549,7 @@ https://templatemo.com/tm-569-edu-meeting
 
       var pathLength = brightPath.getTotalLength();
       var milestoneNodes = Array.from(document.querySelectorAll('.milestone-node'));
+      var memoryBgs = Array.from(document.querySelectorAll('.memory-bg'));
 
       function updateProgress() {
         var rect = wrap.getBoundingClientRect();
@@ -2562,7 +2571,8 @@ https://templatemo.com/tm-569-edu-meeting
           var nodeOnPath = nodeCenter - rect.top;
           var nodePct = nodeOnPath / rect.height;
 
-          if (centerPct > nodePct + 0.025) {
+          var revealed = centerPct > nodePct + 0.025;
+          if (revealed) {
             m.classList.remove('is-active');
             m.classList.add('is-visited');
           } else if (centerPct >= nodePct - 0.025) {
@@ -2570,6 +2580,9 @@ https://templatemo.com/tm-569-edu-meeting
             m.classList.remove('is-visited');
           } else {
             m.classList.remove('is-active', 'is-visited');
+          }
+          if (memoryBgs[i]) {
+            memoryBgs[i].classList.toggle('is-revealed', revealed);
           }
         });
 
