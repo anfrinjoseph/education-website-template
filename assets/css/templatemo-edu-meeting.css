@@ -6150,6 +6150,33 @@ section.learning-process .container {
   margin-top: -40px;
   padding-bottom: 60px;
 }
+
+/* ── Ground arcs (3D perspective half-rings) ── */
+.destination-arcs {
+  position: absolute;
+  top: 10px; left: 50%;
+  transform: translateX(-50%);
+  z-index: -1;
+  pointer-events: none;
+}
+.arc-ring {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) scale(0.85);
+  border-radius: 50%;
+  border: 1px solid rgba(240,193,75,0.25);
+  opacity: 0;
+  box-sizing: border-box;
+  transition: opacity 0.7s ease, transform 0.7s ease, border-width 0.7s ease, border-color 0.7s ease, box-shadow 0.7s ease;
+  mask-image: conic-gradient(from 180deg at 50% 50%, transparent 0deg, transparent 60deg, rgba(0,0,0,0.4) 75deg, black 90deg, black 270deg, rgba(0,0,0,0.4) 285deg, transparent 300deg, transparent 360deg);
+  -webkit-mask-image: conic-gradient(from 180deg at 50% 50%, transparent 0deg, transparent 60deg, rgba(0,0,0,0.4) 75deg, black 90deg, black 270deg, rgba(0,0,0,0.4) 285deg, transparent 300deg, transparent 360deg);
+}
+.arc-ring-1 { width: 200px; height: 60px; margin-top: 0; }
+.arc-ring-2 { width: 280px; height: 80px; margin-top: -10px; transition-delay: 0.15s; }
+.arc-ring-3 { width: 370px; height: 100px; margin-top: -20px; border-color: rgba(240,193,75,0.15); transition-delay: 0.3s; }
+.journey-destination.is-active .arc-ring { opacity: 1; transform: translateX(-50%) scale(1); border-width: 2.5px; border-color: rgba(243,217,139,0.85); box-shadow: 0 0 14px rgba(240,193,75,0.5); }
+
+/* ── Glow rings ── */
 .destination-rings {
   position: absolute;
   top: -40px; left: 50%;
@@ -6157,26 +6184,59 @@ section.learning-process .container {
   width: 300px; height: 300px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(240,193,75,0.18) 0%, transparent 70%);
-  animation: jRingPulse 3s ease-in-out infinite;
+  opacity: 0;
+  transition: opacity 0.6s ease;
   z-index: -1;
+}
+.journey-destination.is-active .destination-rings {
+  opacity: 1;
+  animation: jRingPulse 3s ease-in-out infinite;
 }
 @keyframes jRingPulse {
   0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.6; }
   50%      { transform: translateX(-50%) scale(1.15); opacity: 1; }
 }
+
+/* ── Marker ── */
 .destination-marker {
   width: 70px; height: 70px;
   margin: 0 auto 18px;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 35%, #f3d98b, #a9802f);
-  box-shadow: 0 0 40px rgba(240,193,75,0.6);
+  box-shadow: none;
   display: flex; align-items: center; justify-content: center;
   color: #1a1206;
+  transition: box-shadow 0.6s ease;
 }
-.destination-marker svg { width: 30px; height: 30px; }
-.destination-range { display: block; color: #f0c14b; font-weight: 700; font-size: 16px; margin-bottom: 10px; }
-.destination-heading { color: #fff; font-size: 28px; font-weight: 800; margin-bottom: 12px; max-width: 600px; margin-inline: auto; }
-.destination-subtext { color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.8; }
+.journey-destination.is-active .destination-marker {
+  box-shadow: 0 0 40px rgba(240,193,75,0.6);
+}
+.destination-marker svg { width: 30px; height: 30px; opacity: 0.5; transition: opacity 0.6s ease; }
+.journey-destination.is-active .destination-marker svg { opacity: 1; }
+
+/* ── Text elements ── */
+.destination-range {
+  display: block;
+  color: rgba(240,193,75,0.4);
+  font-weight: 700; font-size: 16px; margin-bottom: 10px;
+  transition: opacity 0.6s ease, color 0.6s ease;
+}
+.journey-destination.is-active .destination-range { color: #f0c14b; }
+
+.destination-heading {
+  color: rgba(255,255,255,0.4);
+  font-size: 28px; font-weight: 800; margin-bottom: 12px;
+  max-width: 600px; margin-inline: auto;
+  transition: opacity 0.6s ease, color 0.6s ease;
+}
+.journey-destination.is-active .destination-heading { color: #fff; }
+
+.destination-subtext {
+  color: rgba(255,255,255,0.25);
+  font-size: 14px; line-height: 1.8;
+  transition: opacity 0.6s ease, color 0.6s ease;
+}
+.journey-destination.is-active .destination-subtext { color: rgba(255,255,255,0.6); }
 
 /* ── Trust bar ── */
 .journey-trust-bar {

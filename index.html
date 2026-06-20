@@ -712,6 +712,11 @@ https://templatemo.com/tm-569-edu-meeting
 
     <!-- Final destination marker -->
     <div class="journey-destination" id="journeyDestination">
+      <div class="destination-arcs">
+        <div class="arc-ring arc-ring-1"></div>
+        <div class="arc-ring arc-ring-2"></div>
+        <div class="arc-ring arc-ring-3"></div>
+      </div>
       <div class="destination-rings"></div>
       <div class="destination-marker">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10L12 6 2 10l10 4 10-4z"/><path d="M6 12v5c3 1.5 9 1.5 12 0v-5"/></svg>
@@ -2535,7 +2540,7 @@ https://templatemo.com/tm-569-edu-meeting
       if (!wrap || !brightPath) return;
 
       var pathLength = brightPath.getTotalLength();
-      var windowRatio = 0.5;
+      var milestoneNodes = Array.from(document.querySelectorAll('.milestone-node'));
 
       function updateProgress() {
         var rect = wrap.getBoundingClientRect();
@@ -2546,19 +2551,21 @@ https://templatemo.com/tm-569-edu-meeting
         var centerPct = centerOnPath / rect.height;
         centerPct = Math.max(0, Math.min(1, centerPct));
 
-        var windowLen = pathLength * windowRatio;
-        var offset = centerPct * pathLength - windowLen / 2;
-        offset = Math.max(0, Math.min(pathLength - windowLen, offset));
+        brightPath.style.strokeDasharray = pathLength;
+        brightPath.style.strokeDashoffset = pathLength * (1 - centerPct);
 
-        brightPath.style.strokeDasharray = windowLen + ' ' + (pathLength - windowLen);
-        brightPath.style.strokeDashoffset = offset;
+        milestones.forEach(function (m, i) {
+          var node = milestoneNodes[i];
+          if (!node) return;
+          var nodeRect = node.getBoundingClientRect();
+          var nodeCenter = nodeRect.top + nodeRect.height / 2;
+          var nodeOnPath = nodeCenter - rect.top;
+          var nodePct = nodeOnPath / rect.height;
 
-        milestones.forEach(function (m) {
-          var mTopPct = parseFloat(m.style.top) / 100;
-          if (centerPct > mTopPct + 0.04) {
+          if (centerPct > nodePct + 0.025) {
             m.classList.remove('is-active');
             m.classList.add('is-visited');
-          } else if (centerPct >= mTopPct - 0.03) {
+          } else if (centerPct >= nodePct - 0.025) {
             m.classList.add('is-active');
             m.classList.remove('is-visited');
           } else {
@@ -2566,8 +2573,8 @@ https://templatemo.com/tm-569-edu-meeting
           }
         });
 
-        if (destination && centerPct > 0.92) {
-          destination.classList.add('is-active');
+        if (destination) {
+          destination.classList.toggle('is-active', centerPct > 0.92);
         }
       }
 
