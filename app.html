@@ -1052,11 +1052,16 @@ https://templatemo.com/tm-569-edu-meeting
           var slides  = Array.from(document.querySelectorAll('.pf-slide'));
           if (!slides.length || !section) return;
 
-          var TOTAL          = slides.length;
-          var currentStep    = 0;
-          var stepInProgress = false;
-          var ANIM_DURATION  = 900;
-          var animTimer      = null;
+          var TOTAL              = slides.length;
+          var currentStep        = 0;
+          var stepInProgress     = false;
+          var isTransitionLocked = false;
+          var isSnapAnimating    = false;
+          var snapTargetStep     = -1;
+          var ANIM_DURATION      = 900;
+          var LOCK_DURATION      = 1200;
+          var animTimer          = null;
+          var lockTimer          = null;
 
           function isMobile() { return window.innerWidth < 992; }
 
@@ -1098,10 +1103,31 @@ https://templatemo.com/tm-569-edu-meeting
           function applyStep(step) {
             if (step < 0 || step >= TOTAL) return;
             if (step === currentStep && stepInProgress === false) return;
-            if (stepInProgress) return;
+            if (stepInProgress || isTransitionLocked) return;
 
             stepInProgress = true;
             currentStep = step;
+
+            if (isMobile()) {
+              isTransitionLocked = true;
+              isSnapAnimating = true;
+              snapTargetStep = step;
+              if (lockTimer) clearTimeout(lockTimer);
+              lockTimer = setTimeout(function () {
+                isTransitionLocked = false;
+                /* ── Final alignment correction ── */
+                if (snapTargetStep >= 0) {
+                  var alignVh = window.innerHeight;
+                  var alignSectionTop = section.getBoundingClientRect().top + window.pageYOffset;
+                  var alignTargetY = alignSectionTop + snapTargetStep * alignVh;
+                  if (Math.abs(window.pageYOffset - alignTargetY) > 2) {
+                    window.scrollTo({ top: alignTargetY, behavior: 'instant' });
+                  }
+                }
+                isSnapAnimating = false;
+                snapTargetStep = -1;
+              }, LOCK_DURATION);
+            }
 
             activateSlide(step);
 
@@ -1122,6 +1148,10 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── Wheel: intercept and snap one step at a time ── */
           function onWheel(e) {
             if (!inScrollZone()) return;
+            if (isMobile() && isTransitionLocked) {
+              e.preventDefault();
+              return;
+            }
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -1143,6 +1173,7 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── Touch: one swipe = one step ── */
           var touchStartY  = 0;
           var touchHandled = false;
+          var SWIPE_THRESHOLD = 60;
 
           window.addEventListener('touchstart', function (e) {
             touchStartY  = e.touches[0].clientY;
@@ -1151,8 +1182,12 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
+            if (isTransitionLocked) {
+              e.preventDefault();
+              return;
+            }
             var deltaY    = touchStartY - e.touches[0].clientY;
-            if (Math.abs(deltaY) < 40) return;
+            if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
             var canGoDown = goingDown && currentStep < TOTAL - 1;
@@ -1172,7 +1207,7 @@ https://templatemo.com/tm-569-edu-meeting
 
           /* ── Keyboard ── */
           window.addEventListener('keydown', function (e) {
-            if (!inScrollZone() || stepInProgress) return;
+            if (!inScrollZone() || stepInProgress || isTransitionLocked) return;
             if (e.key === 'ArrowDown' && currentStep < TOTAL - 1) {
               e.preventDefault();
               var target = currentStep + 1;
@@ -1185,6 +1220,18 @@ https://templatemo.com/tm-569-edu-meeting
               scrollToStep(target);
             }
           });
+
+          /* ── Mobile scroll correction: re-snaps if momentum drifts during lock ── */
+          window.addEventListener('scroll', function () {
+            if (!isMobile() || !inScrollZone()) return;
+            if (!isSnapAnimating || snapTargetStep < 0) return;
+            var driftVh = window.innerHeight;
+            var driftSectionTop = section.getBoundingClientRect().top + window.pageYOffset;
+            var driftTargetY = driftSectionTop + snapTargetStep * driftVh;
+            if (Math.abs(window.pageYOffset - driftTargetY) > 2) {
+              window.scrollTo({ top: driftTargetY, behavior: 'instant' });
+            }
+          }, { passive: true });
 
           /* ── Natural scroll sync (ONLY fires when stepInProgress is false) ── */
           var scrollSyncTimer = null;
