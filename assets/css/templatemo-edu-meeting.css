@@ -458,7 +458,7 @@ header
   -o-transition: all 0.4s;
   -webkit-transition: all 0.4s;
   transition: all 0.4s;
-  background-color: #1e1e1e;
+  background-color: #ffffff;
   display: block;
   position: absolute;
   width: 30px;
@@ -478,7 +478,7 @@ header
   -o-transition: all 0.4s;
   -webkit-transition: all 0.4s;
   transition: all 0.4s;
-  background-color: #1e1e1e;
+  background-color: #ffffff;
   display: block;
   position: absolute;
   width: 30px;
@@ -530,7 +530,7 @@ header
   -ms-transform: translateY(6px) translateX(1px) rotate(45deg);
   -webkit-transform: translateY(6px) translateX(1px) rotate(45deg);
   transform: translateY(6px) translateX(1px) rotate(45deg);
-  background-color: #1e1e1e;
+  background-color: #ffffff;
 }
 
 .background-header .main-nav .menu-trigger.active span:before {
@@ -542,7 +542,7 @@ header
   -ms-transform: translateY(-6px) translateX(1px) rotate(-45deg);
   -webkit-transform: translateY(-6px) translateX(1px) rotate(-45deg);
   transform: translateY(-6px) translateX(1px) rotate(-45deg);
-  background-color: #1e1e1e;
+  background-color: #ffffff;
 }
 
 .background-header .main-nav .menu-trigger.active span:after {
@@ -3392,6 +3392,12 @@ section.app-heading-page h6.app-sub-quote {
   section.app-heading-page h6.app-sub-quote {
     font-size: 16px;
     white-space: normal;
+    position: relative;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    text-align: center;
+    margin-top: 20px;
   }
 }
 
