@@ -1894,12 +1894,17 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── State ── */
           var currentStep    = 0;
           var stepInProgress = false;
-          var STEP_COOLDOWN  = 650;
+          var STEP_COOLDOWN  = isMobile() ? 200 : 650;
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
+            console.log('[STEP] applyStep | step:', step, '| direction:', direction, '| currentStep:', currentStep);
             if (step < 0 || step >= TOTAL_STEPS) return;
-            if (step === currentStep) return;
+            if (step === currentStep) {
+              stepInProgress = false;
+              console.log('[STEP] same step, no change');
+              return;
+            }
             stepInProgress = true;
 
             var deg = step * 90;
@@ -1949,10 +1954,11 @@ https://templatemo.com/tm-569-edu-meeting
            *   rect.bottom >= viewport height  (scene hasn't finished yet)
            */
           function inScrollZone() {
-            if (isMobile()) return false;
             var rect = scene.getBoundingClientRect();
             var vh   = window.innerHeight;
-            return rect.top <= 1 && rect.bottom >= vh - 1;
+            var result = rect.top <= 1 && rect.bottom >= vh - 1;
+            if (Math.random() < 0.05) console.log('[SCROLL] inScrollZone | rect.top:', rect.top.toFixed(1), '| rect.bottom:', rect.bottom.toFixed(1), '| vh:', vh, '| result:', result);
+            return result;
           }
 
           /*
@@ -1961,12 +1967,14 @@ https://templatemo.com/tm-569-edu-meeting
            * is the 4-step travel (100vh each).
            */
           function stepFromScroll() {
-            var rect    = scene.getBoundingClientRect();
-            var scrolled = -rect.top; /* how far we've scrolled into the scene */
-            var vh      = window.innerHeight;
-            /* each step occupies one viewport-height of scroll travel */
-            var step = Math.floor(scrolled / vh);
-            return Math.max(0, Math.min(TOTAL_STEPS - 1, step));
+            var rect     = scene.getBoundingClientRect();
+            var scrolled = -rect.top;
+            var vh       = window.innerHeight;
+            if (scrolled < 0) return 0;
+            var step = Math.floor((scrolled + vh * 0.1) / vh);
+            var clamped = Math.max(0, Math.min(TOTAL_STEPS - 1, step));
+            console.log('[SCROLL] stepFromScroll | rect.top:', rect.top.toFixed(1), '| scrolled:', scrolled.toFixed(1), '| vh:', vh, '| rawStep:', step, '| clamped:', clamped);
+            return clamped;
           }
 
           /* ── Sync wheel hijacking: intercept scroll, do a programmatic scroll ── */
@@ -1978,7 +1986,8 @@ https://templatemo.com/tm-569-edu-meeting
             var vh         = window.innerHeight;
             var sceneTop   = scene.getBoundingClientRect().top + window.pageYOffset;
             var targetY    = sceneTop + targetStep * vh;
-            window.scrollTo({ top: targetY, behavior: 'smooth' });
+            console.log('[SCROLL] scrollToStep | targetStep:', targetStep, '| sceneTop:', sceneTop.toFixed(1), '| targetY:', targetY.toFixed(1), '| vh:', vh, '| pageYOffset:', window.pageYOffset);
+            window.scrollTo({ top: targetY, behavior: isMobile() ? 'instant' : 'smooth' });
           }
 
           function onWheel(e) {
@@ -2002,10 +2011,13 @@ https://templatemo.com/tm-569-edu-meeting
 
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
-            if (isMobile() || !inScrollZone()) return;
+            var inZone = inScrollZone();
+            console.log('[EVENT] scroll | inScrollZone:', inZone, '| stepInProgress:', stepInProgress, '| currentStep:', currentStep, '| pageYOffset:', window.pageYOffset.toFixed(1));
+            if (!inZone) return;
             if (stepInProgress) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
+              console.log('[EVENT] scroll SYNC trigger | stepFromScroll:', s, '| currentStep:', currentStep);
               applyStep(s, s > currentStep ? 1 : -1);
             }
           }, { passive: true });
@@ -2015,7 +2027,9 @@ https://templatemo.com/tm-569-edu-meeting
           var touchHandled = false;
 
           scene.addEventListener('wheel', function onWheel(e) {
-            if (!inScrollZone()) return;
+            var inZone = inScrollZone();
+            console.log('[EVENT] wheel | inScrollZone:', inZone, '| deltaY:', e.deltaY.toFixed(0), '| currentStep:', currentStep, '| stepInProgress:', stepInProgress);
+            if (!inZone) return;
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -2027,6 +2041,7 @@ https://templatemo.com/tm-569-edu-meeting
               e.preventDefault();
               if (!stepInProgress) {
                 var target = goingDown ? currentStep + 1 : currentStep - 1;
+                console.log('[EVENT] wheel INTERCEPT | target:', target, '| direction:', goingDown ? 1 : -1);
                 applyStep(target, goingDown ? 1 : -1);
                 scrollToStep(target);
               }
@@ -2036,12 +2051,20 @@ https://templatemo.com/tm-569-edu-meeting
           scene.addEventListener('touchstart', function (e) {
             touchStartY  = e.touches[0].clientY;
             touchHandled = false;
-          }, { passive: true });
+            console.log('[TOUCH] touchstart | isMobile:', isMobile(), '| inScrollZone:', inScrollZone(), '| touchStartY:', touchStartY);
+          }, { passive: false });
 
           scene.addEventListener('touchmove', function (e) {
+            var inZone = inScrollZone();
             var deltaY = touchStartY - e.touches[0].clientY;
+            var movingDown = deltaY > 0;
+            var absDelta = Math.abs(deltaY);
+            var canIntercept = inZone && absDelta >= 30 &&
+              ((movingDown && currentStep < TOTAL_STEPS - 1) || (!movingDown && currentStep > 0));
 
-            if (Math.abs(deltaY) < 30) return;
+            console.log('[TOUCH] touchmove | inZone:', inZone, '| deltaY:', deltaY.toFixed(0), '| absDelta:', absDelta.toFixed(0), '| movingDown:', movingDown, '| stepInProgress:', stepInProgress, '| touchHandled:', touchHandled, '| currentStep:', currentStep, '| canIntercept:', canIntercept);
+
+            if (absDelta < 30) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
@@ -2049,12 +2072,16 @@ https://templatemo.com/tm-569-edu-meeting
 
             if (intercept) {
               e.preventDefault();
+              console.log('[TOUCH] INTERCEPT! calling applyStep + scrollToStep');
               if (!stepInProgress && !touchHandled) {
                 touchHandled = true;
                 var target = goingDown ? currentStep + 1 : currentStep - 1;
                 applyStep(target, goingDown ? 1 : -1);
                 scrollToStep(target);
                 touchStartY = e.touches[0].clientY;
+                console.log('[TOUCH] step advanced to:', target, '| touchStartY reset to:', touchStartY);
+              } else {
+                console.log('[TOUCH] intercept blocked by stepInProgress:', stepInProgress, 'or touchHandled:', touchHandled);
               }
             }
           }, { passive: false });
@@ -2551,6 +2578,57 @@ https://templatemo.com/tm-569-edu-meeting
       var milestoneNodes = Array.from(document.querySelectorAll('.milestone-node'));
       var memoryBgs = Array.from(document.querySelectorAll('.memory-bg'));
 
+      /* ── Remember each memory photo's original spot in the DOM so we
+           can put it back exactly when the screen returns to desktop width ── */
+      var memoryOriginalParent = [];
+      var memoryOriginalNext = [];
+      memoryBgs.forEach(function (m) {
+        memoryOriginalParent.push(m.parentNode);
+        memoryOriginalNext.push(m.nextSibling);
+      });
+
+      var mobileLayoutActive = false;
+
+      function isMobileWidth() {
+        return window.innerWidth <= 991;
+      }
+
+      /* ── On mobile/tablet: move each memory photo to sit directly
+           before its matching milestone, so the page reads
+           [photo] [milestone content] [photo] [milestone content] ...
+           On desktop: move every photo back to its original position. ── */
+      function relayoutMemories() {
+        var shouldBeMobile = isMobileWidth();
+        if (shouldBeMobile === mobileLayoutActive) return;
+
+        if (shouldBeMobile) {
+          memoryBgs.forEach(function (m, i) {
+            var targetMilestone = milestones[i];
+            if (targetMilestone && targetMilestone.parentNode) {
+              var nextSibling = targetMilestone.nextSibling;
+              if (nextSibling) {
+                targetMilestone.parentNode.insertBefore(m, nextSibling);
+              } else {
+                targetMilestone.parentNode.appendChild(m);
+              }
+            }
+          });
+        } else {
+          memoryBgs.forEach(function (m, i) {
+            var parent = memoryOriginalParent[i];
+            var next = memoryOriginalNext[i];
+            if (parent) {
+              if (next && next.parentNode === parent) {
+                parent.insertBefore(m, next);
+              } else {
+                parent.appendChild(m);
+              }
+            }
+          });
+        }
+        mobileLayoutActive = shouldBeMobile;
+      }
+
       function updateProgress() {
         var rect = wrap.getBoundingClientRect();
         var vh = window.innerHeight;
@@ -2562,6 +2640,9 @@ https://templatemo.com/tm-569-edu-meeting
 
         brightPath.style.strokeDasharray = pathLength;
         brightPath.style.strokeDashoffset = pathLength * (1 - centerPct);
+
+        /* drive the glowing mobile/tablet line from Fix 1 */
+        wrap.style.setProperty('--mobile-line-progress', (centerPct * 100) + '%');
 
         milestones.forEach(function (m, i) {
           var node = milestoneNodes[i];
@@ -2582,7 +2663,13 @@ https://templatemo.com/tm-569-edu-meeting
             m.classList.remove('is-active', 'is-visited');
           }
           if (memoryBgs[i]) {
-            memoryBgs[i].classList.toggle('is-revealed', revealed);
+            /* On mobile/tablet, reveal the photo at the same moment
+               the milestone content becomes highlighted (is-active).
+               Desktop keeps using "revealed" exactly as before — untouched. */
+            var imageRevealed = mobileLayoutActive
+              ? (centerPct >= (nodePct - 0.025))
+              : revealed;
+            memoryBgs[i].classList.toggle('is-revealed', imageRevealed);
           }
         });
 
@@ -2591,8 +2678,12 @@ https://templatemo.com/tm-569-edu-meeting
         }
       }
 
+      relayoutMemories();
       window.addEventListener('scroll', updateProgress, { passive: true });
-      window.addEventListener('resize', updateProgress);
+      window.addEventListener('resize', function () {
+        relayoutMemories();
+        updateProgress();
+      });
       updateProgress();
 
       var container = document.getElementById('journeyParticles');

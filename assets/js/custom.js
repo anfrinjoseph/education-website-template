@@ -188,8 +188,13 @@
 	    var scrollPos = $(document).scrollTop();
 	    $('.nav a').each(function () {
 	        var currLink = $(this);
-	        var refElement = $(currLink.attr("href"));
-	        if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+	        var href = currLink.attr("href");
+	        if (!href || href === '#') return;
+	        var refElement = $(href);
+	        if (!refElement.length) return;
+	        var pos = refElement.position();
+	        if (!pos) return;
+	        if (pos.top <= scrollPos && pos.top + refElement.height() > scrollPos) {
 	            $('.nav ul li a').removeClass("active");
 	            currLink.addClass("active");
 	        }
@@ -260,10 +265,13 @@
 
 	function visible(partial) {
         var $t = partial,
-            $w = jQuery(window),
-            viewTop = $w.scrollTop(),
+            $w = jQuery(window);
+        if (!$t || !$t.length) return false;
+        var viewTop = $w.scrollTop(),
             viewBottom = viewTop + $w.height(),
-            _top = $t.offset().top,
+            _offset = $t.offset();
+        if (!_offset) return false;
+        var _top = _offset.top,
             _bottom = _top + $t.height(),
             compareTop = partial === true ? _bottom : _top,
             compareBottom = partial === true ? _top : _bottom;

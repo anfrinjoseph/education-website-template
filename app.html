@@ -924,12 +924,15 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── State ── */
           var currentStep    = 0;
           var stepInProgress = false;
-          var STEP_COOLDOWN  = 650;
+          var STEP_COOLDOWN  = isMobile() ? 200 : 650;
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
             if (step < 0 || step >= TOTAL_STEPS) return;
-            if (step === currentStep) return;
+            if (step === currentStep) {
+              stepInProgress = false;
+              return;
+            }
             stepInProgress = true;
 
             var deg = step * 90;
@@ -969,6 +972,9 @@ https://templatemo.com/tm-569-edu-meeting
             currentStep = step;
 
             setTimeout(function () { stepInProgress = false; }, STEP_COOLDOWN);
+            /* Safety fallback: if setTimeout was delayed by scroll jank,
+               force-reset stepInProgress after 1.5x the cooldown */
+            setTimeout(function () { stepInProgress = false; }, STEP_COOLDOWN * 1.5);
           }
 
           /*
@@ -979,10 +985,10 @@ https://templatemo.com/tm-569-edu-meeting
            *   rect.bottom >= viewport height  (scene hasn't finished yet)
            */
           function inScrollZone() {
-            if (isMobile()) return false;
-            var rect = scene.getBoundingClientRect();
-            var vh   = window.innerHeight;
-            return rect.top <= 1 && rect.bottom >= vh - 1;
+            var rect  = scene.getBoundingClientRect();
+            var vh    = window.innerHeight;
+            /* Use 60px tolerance to account for mobile browser chrome changes */
+            return rect.top <= 60 && rect.bottom >= vh - 60;
           }
 
           /*
@@ -991,12 +997,14 @@ https://templatemo.com/tm-569-edu-meeting
            * is the 4-step travel (100vh each).
            */
           function stepFromScroll() {
-            var rect    = scene.getBoundingClientRect();
-            var scrolled = -rect.top; /* how far we've scrolled into the scene */
-            var vh      = window.innerHeight;
-            /* each step occupies one viewport-height of scroll travel */
-            var step = Math.floor(scrolled / vh);
-            return Math.max(0, Math.min(TOTAL_STEPS - 1, step));
+            var rect     = scene.getBoundingClientRect();
+            var scrolled = -rect.top;
+            var vh       = window.innerHeight;
+            if (scrolled < 0) return 0;
+            /* Use integer division — each vh of scroll = one step.
+               The 0.1 offset prevents jitter exactly at step boundaries. */
+            var raw = Math.floor((scrolled + vh * 0.1) / vh);
+            return Math.max(0, Math.min(TOTAL_STEPS - 1, raw));
           }
 
           /* ── Sync wheel hijacking: intercept scroll, do a programmatic scroll ── */
@@ -1008,11 +1016,12 @@ https://templatemo.com/tm-569-edu-meeting
             var vh         = window.innerHeight;
             var sceneTop   = scene.getBoundingClientRect().top + window.pageYOffset;
             var targetY    = sceneTop + targetStep * vh;
-            window.scrollTo({ top: targetY, behavior: 'smooth' });
+            window.scrollTo({ top: targetY, behavior: isMobile() ? 'instant' : 'smooth' });
           }
 
           function onWheel(e) {
-            if (!inScrollZone()) return;
+            var inZone = inScrollZone();
+            if (!inZone) return;
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -1034,7 +1043,7 @@ https://templatemo.com/tm-569-edu-meeting
 
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
-            if (isMobile() || !inScrollZone()) return;
+            if (!inScrollZone()) return;
             if (stepInProgress) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
@@ -1049,12 +1058,16 @@ https://templatemo.com/tm-569-edu-meeting
           window.addEventListener('touchstart', function (e) {
             touchStartY  = e.touches[0].clientY;
             touchHandled = false;
-          }, { passive: true });
+          }, { passive: false });
 
           window.addEventListener('touchmove', function (e) {
-            if (!inScrollZone()) return;
-            var deltaY = touchStartY - e.touches[0].clientY;
+            /* On mobile: do nothing here. Let native scroll run freely.
+               The window scroll listener will pick up position changes
+               and call applyStep() to update the wheel and content cards.
+               Intercepting touch on mobile causes page teleportation bugs. */
+            if (isMobile()) return;
 
+            var deltaY = touchStartY - e.touches[0].clientY;
             if (Math.abs(deltaY) < 30) return;
 
             var goingDown = deltaY > 0;
@@ -1129,7 +1142,6 @@ https://templatemo.com/tm-569-edu-meeting
           window.addEventListener('resize', setSectionHeight);
 
           function inScrollZone() {
-            if (isMobile()) return false;
             var rect = section.getBoundingClientRect();
             var vh   = window.innerHeight;
             return rect.top <= 1 && rect.bottom >= vh - 1;
@@ -1140,7 +1152,7 @@ https://templatemo.com/tm-569-edu-meeting
             var vh         = window.innerHeight;
             var sectionTop = section.getBoundingClientRect().top + window.pageYOffset;
             var targetY    = sectionTop + targetStep * vh;
-            window.scrollTo({ top: targetY, behavior: 'smooth' });
+            window.scrollTo({ top: targetY, behavior: isMobile() ? 'instant' : 'smooth' });
           }
 
           function activateSlide(step) {
