@@ -2360,6 +2360,7 @@ https://templatemo.com/tm-569-edu-meeting
       }
 
       var offset = 0;
+      var isAnimating = false;
 
       /* ── Compute slot position values ── */
       function getSlotPos(slotIdx, stageW) {
@@ -2401,6 +2402,8 @@ https://templatemo.com/tm-569-edu-meeting
       /* ── Animated step (direction: 1 = forward/right, -1 = backward/left) ── */
       function animateStep(direction) {
         if (reduced) { offset = ((offset + direction) % total + total) % total; layoutImmediate(); return; }
+        if (isAnimating) return;
+        isAnimating = true;
 
         var prevOffset = offset;
         offset = ((offset + direction) % total + total) % total;
@@ -2462,6 +2465,8 @@ https://templatemo.com/tm-569-edu-meeting
         });
 
         updateZIndices();
+
+        setTimeout(function () { isAnimating = false; }, 1000);
       }
 
       /* ── Auto-rotation ── */
@@ -2693,47 +2698,6 @@ https://templatemo.com/tm-569-edu-meeting
           container.appendChild(p);
         }
       }
-    })();
-    </script>
-
-    <script>
-    (function() {
-      var box = document.createElement('div');
-      box.style.position = 'fixed';
-      box.style.top = '0';
-      box.style.left = '0';
-      box.style.zIndex = '999999';
-      box.style.background = 'rgba(0,0,0,0.85)';
-      box.style.color = '#0f0';
-      box.style.fontSize = '10px';
-      box.style.fontFamily = 'monospace';
-      box.style.padding = '4px';
-      box.style.maxWidth = '100vw';
-      box.style.pointerEvents = 'none';
-      document.body.appendChild(box);
-
-      var scene = document.getElementById('app-scroll-scene');
-      var frame = document.getElementById('appStickyFrame');
-
-      function update() {
-        if (!scene || !frame) { box.textContent = 'scene or frame not found'; return; }
-        var sceneRect = scene.getBoundingClientRect();
-        var frameRect = frame.getBoundingClientRect();
-        var frameStyle = window.getComputedStyle(frame);
-        box.textContent =
-          'vh=' + window.innerHeight +
-          ' sceneH=' + Math.round(scene.offsetHeight) +
-          ' sceneTop=' + Math.round(sceneRect.top) +
-          ' sceneBot=' + Math.round(sceneRect.bottom) +
-          ' frameH=' + Math.round(frame.offsetHeight) +
-          ' frameTop=' + Math.round(frameRect.top) +
-          ' framePos=' + frameStyle.position +
-          ' frameComputedH=' + frameStyle.height;
-      }
-
-      window.addEventListener('scroll', update, { passive: true });
-      window.addEventListener('resize', update, { passive: true });
-      update();
     })();
     </script>
 

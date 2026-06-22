@@ -584,7 +584,7 @@ header
     width: 100%;
   }
   .header-area {
-    background-color: #f7f7f7;
+    background-color: transparent;
     padding: 0px 15px;
     height: 100px;
     box-shadow: none;
@@ -711,6 +711,7 @@ banner
     bottom: 0;
     right: 0;
     width: 100%;
+    overflow: hidden;
 }
 
 .main-banner .caption {
@@ -1131,6 +1132,7 @@ courses
 
 section.our-courses {
   position: relative;
+  overflow: hidden;
   isolation: isolate;
   background-image: url(../images/meetings-page-bg-red.jpg);
   background-position: center center;
@@ -1969,7 +1971,12 @@ responsive
 @media (max-width: 992px) {
 
   .main-banner .caption {
-    top: 60%;
+    top: 55%;
+    left: 0;
+    right: 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+    width: 100%;
   }
 
   .main-banner .caption h2 {
@@ -2030,6 +2037,44 @@ responsive
 
   .header-area .main-nav .nav li ul.sub-menu li a {
     color: #1f272b;
+  }
+
+}
+
+@media (max-width: 767px) {
+
+  .quote-slider {
+    min-height: 200px;
+  }
+
+  .quote-text {
+    font-size: 22px !important;
+    line-height: 1.5;
+  }
+
+  .quote-author {
+    font-size: 16px;
+  }
+
+  .main-banner .caption .main-button-red {
+    margin-top: 18px;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .quote-text {
+    font-size: 18px !important;
+    line-height: 1.5;
+  }
+
+  .quote-author {
+    font-size: 14px;
+  }
+
+  .quote-slider {
+    min-height: 180px;
   }
 
 }
@@ -3300,6 +3345,35 @@ section.app-heading-page h6.app-sub-quote {
   bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
+}
+
+/* ── App heading page: mobile responsive ── */
+@media (max-width: 991px) {
+  section.app-heading-page {
+    padding-top: 160px;
+    padding-bottom: 120px;
+  }
+  section.app-heading-page h2.app-main-title {
+    font-size: 80px;
+  }
+  section.app-heading-page h6.app-sub-quote {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  section.app-heading-page {
+    padding-top: 140px;
+    padding-bottom: 80px;
+  }
+  section.app-heading-page h2.app-main-title {
+    font-size: 52px;
+    letter-spacing: 2px;
+  }
+  section.app-heading-page h6.app-sub-quote {
+    font-size: 16px;
+    white-space: normal;
+  }
 }
 
 /* ── App About Section (Image Left, Text Right with Scroll Animation) ── */
@@ -5611,15 +5685,25 @@ section.learning-process .container {
   .app-promo-buttons { flex-direction: column; align-items: flex-start; }
 
   .cp-title { font-size: 26px; }
-  .topper-card { width: 195px; }
 
   .popular-badge { font-size: 10px; padding: 3px 30px; left: -28px; }
 
-  .hof-stats { gap: 12px; margin: 28px auto 36px; }
-  .hof-stat-card { min-width: 100px; padding: 14px 16px; }
-  .hof-stat-number { font-size: 20px; }
+  /* ── Topper cards: smaller on mobile ── */
+  .topper-card { width: 155px !important; }
+  .topper-info h4 { font-size: 14px; }
+  .topper-info p { font-size: 12px; }
+  .topper-rank-badge { font-size: 9px; padding: 4px 8px; }
+  .toppers-track { gap: 16px; }
+
+  /* ── Stats bar: show all 4 in a 2x2 grid ── */
+  .hof-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px auto 30px; padding: 0 16px; }
+  .hof-stat-card { min-width: unset; padding: 12px 10px; }
+  .hof-stat-number { font-size: 22px; }
+  .hof-stat-icon { font-size: 18px; }
   .hof-stat-label { font-size: 9px; }
 
+  /* ── Section padding ── */
+  .toppers-section { padding: 80px 0 0; }
 
   .course-item-card .down-content { padding: 20px 16px 18px; }
   .course-item-card .down-content h4 { font-size: 15px; }
@@ -5627,6 +5711,12 @@ section.learning-process .container {
   .course-item-card .enroll-btn { font-size: 11px; padding: 6px 14px; }
 
   .slide-in-left, .slide-in-right { transform: translateY(20px); }
+}
+
+@media (max-width: 480px) {
+  .topper-card { width: 140px !important; }
+  .topper-img-wrap { aspect-ratio: 1; }
+  .topper-info { padding: 12px 14px 14px; }
 }
 
 /* ════════════════════════════════════════════════════════════════
