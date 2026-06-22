@@ -1898,11 +1898,9 @@ https://templatemo.com/tm-569-edu-meeting
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
-            console.log('[STEP] applyStep | step:', step, '| direction:', direction, '| currentStep:', currentStep);
             if (step < 0 || step >= TOTAL_STEPS) return;
             if (step === currentStep) {
               stepInProgress = false;
-              console.log('[STEP] same step, no change');
               return;
             }
             stepInProgress = true;
@@ -1956,9 +1954,7 @@ https://templatemo.com/tm-569-edu-meeting
           function inScrollZone() {
             var rect = scene.getBoundingClientRect();
             var vh   = window.innerHeight;
-            var result = rect.top <= 1 && rect.bottom >= vh - 1;
-            if (Math.random() < 0.05) console.log('[SCROLL] inScrollZone | rect.top:', rect.top.toFixed(1), '| rect.bottom:', rect.bottom.toFixed(1), '| vh:', vh, '| result:', result);
-            return result;
+            return rect.top <= 1 && rect.bottom >= vh - 1;
           }
 
           /*
@@ -1971,10 +1967,8 @@ https://templatemo.com/tm-569-edu-meeting
             var scrolled = -rect.top;
             var vh       = window.innerHeight;
             if (scrolled < 0) return 0;
-            var step = Math.floor((scrolled + vh * 0.1) / vh);
-            var clamped = Math.max(0, Math.min(TOTAL_STEPS - 1, step));
-            console.log('[SCROLL] stepFromScroll | rect.top:', rect.top.toFixed(1), '| scrolled:', scrolled.toFixed(1), '| vh:', vh, '| rawStep:', step, '| clamped:', clamped);
-            return clamped;
+            var step = Math.floor(scrolled / vh);
+            return Math.max(0, Math.min(TOTAL_STEPS - 1, step));
           }
 
           /* ── Sync wheel hijacking: intercept scroll, do a programmatic scroll ── */
@@ -1986,7 +1980,6 @@ https://templatemo.com/tm-569-edu-meeting
             var vh         = window.innerHeight;
             var sceneTop   = scene.getBoundingClientRect().top + window.pageYOffset;
             var targetY    = sceneTop + targetStep * vh;
-            console.log('[SCROLL] scrollToStep | targetStep:', targetStep, '| sceneTop:', sceneTop.toFixed(1), '| targetY:', targetY.toFixed(1), '| vh:', vh, '| pageYOffset:', window.pageYOffset);
             window.scrollTo({ top: targetY, behavior: isMobile() ? 'instant' : 'smooth' });
           }
 
@@ -2012,23 +2005,21 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
             var inZone = inScrollZone();
-            console.log('[EVENT] scroll | inScrollZone:', inZone, '| stepInProgress:', stepInProgress, '| currentStep:', currentStep, '| pageYOffset:', window.pageYOffset.toFixed(1));
             if (!inZone) return;
             if (stepInProgress) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
-              console.log('[EVENT] scroll SYNC trigger | stepFromScroll:', s, '| currentStep:', currentStep);
               applyStep(s, s > currentStep ? 1 : -1);
             }
           }, { passive: true });
 
           /* ── Wheel & touch interception scoped to scene only ── */
-          var touchStartY  = 0;
-          var touchHandled = false;
+          var touchStartY   = 0;
+          var touchHandled  = false;
+          var scrollAnchor  = 0; /* stable pageYOffset recorded at touchstart */
 
           scene.addEventListener('wheel', function onWheel(e) {
             var inZone = inScrollZone();
-            console.log('[EVENT] wheel | inScrollZone:', inZone, '| deltaY:', e.deltaY.toFixed(0), '| currentStep:', currentStep, '| stepInProgress:', stepInProgress);
             if (!inZone) return;
 
             var goingDown = e.deltaY > 0;
@@ -2041,7 +2032,6 @@ https://templatemo.com/tm-569-edu-meeting
               e.preventDefault();
               if (!stepInProgress) {
                 var target = goingDown ? currentStep + 1 : currentStep - 1;
-                console.log('[EVENT] wheel INTERCEPT | target:', target, '| direction:', goingDown ? 1 : -1);
                 applyStep(target, goingDown ? 1 : -1);
                 scrollToStep(target);
               }
@@ -2051,20 +2041,16 @@ https://templatemo.com/tm-569-edu-meeting
           scene.addEventListener('touchstart', function (e) {
             touchStartY  = e.touches[0].clientY;
             touchHandled = false;
-            console.log('[TOUCH] touchstart | isMobile:', isMobile(), '| inScrollZone:', inScrollZone(), '| touchStartY:', touchStartY);
+            /* Capture the anchor once at gesture start so we never
+               read a stale getBoundingClientRect during the touch. */
+            scrollAnchor = window.pageYOffset;
           }, { passive: false });
 
           scene.addEventListener('touchmove', function (e) {
-            var inZone = inScrollZone();
+            if (!inScrollZone()) return;
+
             var deltaY = touchStartY - e.touches[0].clientY;
-            var movingDown = deltaY > 0;
-            var absDelta = Math.abs(deltaY);
-            var canIntercept = inZone && absDelta >= 30 &&
-              ((movingDown && currentStep < TOTAL_STEPS - 1) || (!movingDown && currentStep > 0));
-
-            console.log('[TOUCH] touchmove | inZone:', inZone, '| deltaY:', deltaY.toFixed(0), '| absDelta:', absDelta.toFixed(0), '| movingDown:', movingDown, '| stepInProgress:', stepInProgress, '| touchHandled:', touchHandled, '| currentStep:', currentStep, '| canIntercept:', canIntercept);
-
-            if (absDelta < 30) return;
+            if (Math.abs(deltaY) < 30) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
@@ -2072,16 +2058,22 @@ https://templatemo.com/tm-569-edu-meeting
 
             if (intercept) {
               e.preventDefault();
-              console.log('[TOUCH] INTERCEPT! calling applyStep + scrollToStep');
               if (!stepInProgress && !touchHandled) {
                 touchHandled = true;
-                var target = goingDown ? currentStep + 1 : currentStep - 1;
-                applyStep(target, goingDown ? 1 : -1);
-                scrollToStep(target);
+                var target   = goingDown ? currentStep + 1 : currentStep - 1;
+                var dir      = goingDown ? 1 : -1;
+                var vh       = window.innerHeight;
+
+                applyStep(target, dir);
+
+                /* Use scrollAnchor (captured at touchstart) instead of
+                   live getBoundingClientRect to avoid stale-layout bugs
+                   on mobile that cause page teleportation. */
+                var targetY = scrollAnchor + target * vh;
+                window.scrollTo({ top: targetY, behavior: 'instant' });
+                scrollAnchor = targetY;
+
                 touchStartY = e.touches[0].clientY;
-                console.log('[TOUCH] step advanced to:', target, '| touchStartY reset to:', touchStartY);
-              } else {
-                console.log('[TOUCH] intercept blocked by stepInProgress:', stepInProgress, 'or touchHandled:', touchHandled);
               }
             }
           }, { passive: false });
@@ -2701,6 +2693,47 @@ https://templatemo.com/tm-569-edu-meeting
           container.appendChild(p);
         }
       }
+    })();
+    </script>
+
+    <script>
+    (function() {
+      var box = document.createElement('div');
+      box.style.position = 'fixed';
+      box.style.top = '0';
+      box.style.left = '0';
+      box.style.zIndex = '999999';
+      box.style.background = 'rgba(0,0,0,0.85)';
+      box.style.color = '#0f0';
+      box.style.fontSize = '10px';
+      box.style.fontFamily = 'monospace';
+      box.style.padding = '4px';
+      box.style.maxWidth = '100vw';
+      box.style.pointerEvents = 'none';
+      document.body.appendChild(box);
+
+      var scene = document.getElementById('app-scroll-scene');
+      var frame = document.getElementById('appStickyFrame');
+
+      function update() {
+        if (!scene || !frame) { box.textContent = 'scene or frame not found'; return; }
+        var sceneRect = scene.getBoundingClientRect();
+        var frameRect = frame.getBoundingClientRect();
+        var frameStyle = window.getComputedStyle(frame);
+        box.textContent =
+          'vh=' + window.innerHeight +
+          ' sceneH=' + Math.round(scene.offsetHeight) +
+          ' sceneTop=' + Math.round(sceneRect.top) +
+          ' sceneBot=' + Math.round(sceneRect.bottom) +
+          ' frameH=' + Math.round(frame.offsetHeight) +
+          ' frameTop=' + Math.round(frameRect.top) +
+          ' framePos=' + frameStyle.position +
+          ' frameComputedH=' + frameStyle.height;
+      }
+
+      window.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update, { passive: true });
+      update();
     })();
     </script>
 

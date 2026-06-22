@@ -141,7 +141,7 @@ body {
 
 @media (max-width: 991px) {
   html, body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
   .mobile-top-fix {
     margin-top: 30px;
@@ -2216,10 +2216,11 @@ responsive
 --------------------------------------------------------------- */
 #app-scroll-scene {
   position: relative;
-  height: 500vh; /* 1 vh pinned view + 4 scroll steps */
+  height: 400vh; /* 4 steps × 100vh = exactly 400vh of pin+release range */
 }
 
 .app-sticky-frame {
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   height: 100vh;
@@ -2644,10 +2645,11 @@ responsive
 --------------------------------------------------------------- */
 @media (max-width: 991px) {
   .app-sticky-frame {
+    position: -webkit-sticky;
     position: sticky;
     top: 0;
     height: 100vh;
-    height: -webkit-fill-available;
+    height: 100dvh;
     flex-direction: column;
     padding: 0;
     overflow: hidden;
@@ -2705,7 +2707,7 @@ responsive
   }
 
   #app-scroll-scene {
-    height: 500vh;
+    height: 400vh;
   }
 
   .wheel-wrapper {
