@@ -2344,6 +2344,7 @@ https://templatemo.com/tm-569-edu-meeting
       var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var isMobile = function () { return window.innerWidth < 768; };
       var isTablet = function () { return window.innerWidth >= 768 && window.innerWidth < 992; };
+      if (isMobile()) return;
 
       /* ── Arc geometry (7 slots) ── */
       var ARC_HEIGHT   = 70;
@@ -2560,6 +2561,161 @@ https://templatemo.com/tm-569-edu-meeting
           });
         });
       }
+    })();
+    </script>
+
+    <script>
+    /* ── Mobile single-card carousel for courses section ── */
+    (function () {
+      if (window.innerWidth >= 768) return;
+
+      var stage = document.getElementById('deckStage');
+      if (!stage) return;
+
+      var cards = Array.from(stage.querySelectorAll('.deck-card-position'));
+      if (cards.length < 2) return;
+
+      /* ── Clear arc inline styles ── */
+      cards.forEach(function (card) {
+        card.style.position = '';
+        card.style.left = '';
+        card.style.bottom = '';
+        card.style.transform = '';
+        card.style.zIndex = '';
+        card.style.opacity = '';
+        card.style.transition = '';
+      });
+
+      /* ── Hide old deck arrows ── */
+      stage.querySelectorAll('.deck-arrow').forEach(function (a) {
+        a.style.display = 'none';
+      });
+
+      /* ── Create wrapper, viewport, track ── */
+      var wrapper = document.createElement('div');
+      wrapper.className = 'mobile-carousel-wrapper';
+
+      var viewport = document.createElement('div');
+      viewport.className = 'mobile-carousel-viewport';
+
+      var track = document.createElement('div');
+      track.className = 'mobile-carousel-track';
+
+      cards.forEach(function (card) {
+        track.appendChild(card);
+      });
+
+      viewport.appendChild(track);
+      wrapper.appendChild(viewport);
+
+      /* ── Arrow buttons ── */
+      var leftArrow = document.createElement('button');
+      leftArrow.className = 'mobile-carousel-arrow mobile-carousel-arrow-left';
+      leftArrow.innerHTML = '&#8249;';
+      leftArrow.setAttribute('aria-label', 'Previous course');
+
+      var rightArrow = document.createElement('button');
+      rightArrow.className = 'mobile-carousel-arrow mobile-carousel-arrow-right';
+      rightArrow.innerHTML = '&#8250;';
+      rightArrow.setAttribute('aria-label', 'Next course');
+
+      wrapper.appendChild(leftArrow);
+      wrapper.appendChild(rightArrow);
+
+      stage.insertBefore(wrapper, stage.firstChild);
+
+      /* ── Dots ── */
+      var dotsContainer = document.createElement('div');
+      dotsContainer.className = 'mobile-carousel-dots';
+
+      cards.forEach(function (_, i) {
+        var dot = document.createElement('span');
+        dot.className = 'mobile-carousel-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('data-slide', i);
+        dotsContainer.appendChild(dot);
+      });
+      stage.appendChild(dotsContainer);
+
+      /* ── State ── */
+      var current = 0;
+      var total = cards.length;
+      var autoTimer = null;
+      var animating = false;
+
+      function goTo(index) {
+        if (animating) return;
+        if (index < 0) index = total - 1;
+        if (index >= total) index = 0;
+        if (index === current) return;
+        animating = true;
+        track.style.transform = 'translateX(-' + (index * 100) + '%)';
+        current = index;
+        updateDots();
+        resetAuto();
+        setTimeout(function () { animating = false; }, 450);
+      }
+
+      function goNext() { goTo(current + 1); }
+      function goPrev() { goTo(current - 1); }
+
+      function updateDots() {
+        dotsContainer.querySelectorAll('.mobile-carousel-dot').forEach(function (dot, i) {
+          dot.classList.toggle('active', i === current);
+        });
+      }
+
+      function startAuto() {
+        stopAuto();
+        autoTimer = setInterval(goNext, 4000);
+      }
+
+      function stopAuto() {
+        if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      }
+
+      function resetAuto() {
+        startAuto();
+      }
+
+      leftArrow.addEventListener('click', goPrev);
+      rightArrow.addEventListener('click', goNext);
+
+      dotsContainer.addEventListener('click', function (e) {
+        var dot = e.target.closest('.mobile-carousel-dot');
+        if (!dot) return;
+        goTo(parseInt(dot.getAttribute('data-slide'), 10));
+      });
+
+      /* ── Swipe support ── */
+      var swipeStartX = 0, swipeStartY = 0, swiping = false;
+
+      viewport.addEventListener('touchstart', function (e) {
+        var t = e.touches[0];
+        swipeStartX = t.clientX;
+        swipeStartY = t.clientY;
+        swiping = true;
+      }, { passive: true });
+
+      viewport.addEventListener('touchmove', function (e) {
+        if (!swiping) return;
+        var t = e.touches[0];
+        var dx = Math.abs(t.clientX - swipeStartX);
+        var dy = Math.abs(t.clientY - swipeStartY);
+        if (dx > dy && dx > 10) e.preventDefault();
+      }, { passive: false });
+
+      viewport.addEventListener('touchend', function (e) {
+        if (!swiping) return;
+        swiping = false;
+        var t = e.changedTouches[0];
+        var dx = t.clientX - swipeStartX;
+        if (Math.abs(dx) > 50) {
+          if (dx > 0) goPrev();
+          else goNext();
+        }
+      }, { passive: true });
+
+      startAuto();
     })();
     </script>
 

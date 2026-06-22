@@ -584,6 +584,9 @@ header
     width: 100%;
   }
   .header-area {
+    position: fixed;
+    top: 0;
+    z-index: 1112;
     background-color: transparent;
     padding: 0px 15px;
     height: 100px;
@@ -6059,60 +6062,174 @@ section.learning-process .container {
   }
 }
 
-/* ── Mobile (<768px): stacked column ── */
-@media (max-width: 767px) {
+/* ── Mobile (<768px): single-card carousel ── */
+@media (max-width: 768px) {
+  section.our-courses {
+    background-size: 650px auto !important;
+    background-repeat: repeat !important;
+    background-position: center center !important;
+    background-attachment: scroll !important;
+    overflow: hidden !important;
+  }
+
+  section.our-courses .cp-title {
+    font-size: 34px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+
   .deck-stage {
-    height: auto;
-    min-height: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 24px;
-    padding: 0 16px;
-    max-width: 100%;
+    height: auto !important;
+    min-height: 0 !important;
+    display: block !important;
+    position: relative !important;
+    overflow: visible !important;
+    padding: 0 0 50px !important;
+    max-width: 100% !important;
   }
 
   .deck-glow {
-    display: none;
+    display: none !important;
   }
 
   .deck-arrow {
-    display: none;
+    display: none !important;
+  }
+
+  .mobile-carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-sizing: border-box;
+    width: 85vw;
+    max-width: 340px;
+  }
+
+  .mobile-carousel-viewport {
+    overflow: hidden;
+    width: 100%;
+    border-radius: 18px;
+  }
+
+  .mobile-carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+    width: 100%;
   }
 
   .deck-card-position {
-    position: static;
-    left: auto;
-    bottom: auto;
+    position: static !important;
+    left: auto !important;
+    bottom: auto !important;
     transform: none !important;
+    opacity: 1 !important;
+    z-index: auto !important;
     width: 100%;
-    max-width: 280px;
+    max-width: 100%;
+    flex: 0 0 100%;
     flex-shrink: 0;
-    opacity: 0;
-    transition: opacity 0.7s ease;
+    box-sizing: border-box;
+    height: 440px;
+    overflow: hidden;
+  }
+  .deck-card-position .deck-card-tilt,
+  .deck-card-position .course-item-card {
+    height: 100%;
   }
 
-  .deck-card-position.visible-mobile {
-    opacity: 1;
+  .deck-card-position .course-item-card {
+    width: 100%;
+    max-width: 100%;
   }
 
   .deck-card-tilt {
-    transition: none;
-    cursor: default;
+    transition: none !important;
+    cursor: default !important;
+    transform: none !important;
   }
 
   .deck-card-tilt::after {
-    display: none;
+    display: none !important;
   }
 
   .deck-card-tilt:hover,
   .deck-card-tilt:focus-visible {
+    transform: none !important;
     box-shadow: 0 4px 18px rgba(0,0,0,0.12);
-    transform: none;
+  }
+
+  .mobile-carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 26px;
+    font-weight: 300;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    padding: 0;
+    line-height: 1;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .mobile-carousel-arrow:hover {
+    transform: translateY(-50%) scale(1.1);
+    background: rgba(255,255,255,0.3);
+  }
+
+  .mobile-carousel-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+
+  .mobile-carousel-arrow-left {
+    left: -22px;
+  }
+
+  .mobile-carousel-arrow-right {
+    right: -22px;
+  }
+
+  .mobile-carousel-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding-bottom: 0;
+  }
+
+  .mobile-carousel-dot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: width 0.3s ease, background 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-carousel-dot.active {
+    width: 18px;
+    background: #fff;
   }
 
   .deck-cta-wrap {
-    margin-top: 32px;
+    margin-top: 32px !important;
   }
 }
 
@@ -6631,5 +6748,16 @@ section.learning-process .container {
 @media (max-width: 400px) {
   .wheel-wrapper { width: 260px; height: 260px; }
   .wheel-ring { width: 220px; height: 220px; }
+}
+
+/* ── Mobile background scaling correction ── */
+@media (max-width: 768px) {
+  section.contact-us,
+  section.upcoming-meetings {
+    background-size: 650px auto !important;
+    background-position: center center !important;
+    background-repeat: repeat !important;
+    background-attachment: scroll !important;
+  }
 }
 
