@@ -2729,7 +2729,7 @@ responsive
 
   .mode-card {
     position: absolute;
-    top: 50%;
+    top: calc(50% - 40px);
     left: 20px;
     right: 20px;
     transform: translateY(-50%);
@@ -2761,11 +2761,27 @@ responsive
   .wheel-wrapper {
     width: 240px;
     height: 240px;
+    margin-top: 160px;
   }
 
   .wheel-ring {
     width: 200px;
     height: 200px;
+  }
+
+  .wheel-orb {
+    width: 60px;
+    height: 60px;
+    box-shadow: 0 0 20px rgba(245,164,37,0.45), 0 0 40px rgba(161,44,47,0.25);
+  }
+
+  .orb-label {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+
+  .orb-name {
+    font-size: 8px;
   }
 
   .wheel-node:nth-child(1) { top: 0px;   left: 60px; }
