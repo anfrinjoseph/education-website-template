@@ -1017,7 +1017,7 @@ https://templatemo.com/tm-569-edu-meeting
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
 
-            // If the section is already animating or locked, block all incoming touch events
+            // If the section is currently shifting or locked, discard all touch micro-movements
             if (scrollLocked || stepInProgress) {
               e.preventDefault();
               return;
@@ -1026,7 +1026,7 @@ https://templatemo.com/tm-569-edu-meeting
             var currentY = e.touches[0].clientY;
             var deltaY = touchStartY - currentY;
 
-            // If the finger hasn't moved past the threshold yet, do nothing
+            // Check if movement gap has crossed the minimum threshold yet
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
@@ -1042,11 +1042,12 @@ https://templatemo.com/tm-569-edu-meeting
 
                 applyStep(target, dir);
                 scrollToStep(target);
-                lockScroll(1200); /* Keep a long block window to discard mobile momentum */
+                lockScroll(1200); /* Keep a solid cooling period to absorb hardware inertia layers */
 
-                // CRITICAL MOBILE FIX: Reset the touch start anchor position to the current finger location
-                // This resets the math calculations instantly so continuous dragging doesn't cause page jumps
+                // CRITICAL CONTINUOUS DRAG CORRECTION: Reset state flags and anchor positions
+                // This clears distance overflow tracking so continuous finger movements calculate cleanly
                 touchStartY = currentY;
+                touchHandled = false;
               }
             }
           }, { passive: false });
@@ -1271,7 +1272,9 @@ https://templatemo.com/tm-569-edu-meeting
               var wheelRect = wheelScene.getBoundingClientRect();
               if (wheelRect.top <= 100 && wheelRect.bottom >= window.innerHeight - 100) return;
             }
-            if (isTransitionLocked) {
+            // CRITICAL LEAK FIX: Block the page from sliding down on the final card
+            // while the transition cooldown is active
+            if (isTransitionLocked || stepInProgress) {
               e.preventDefault();
               return;
             }

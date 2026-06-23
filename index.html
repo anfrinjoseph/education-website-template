@@ -1157,7 +1157,7 @@ https://templatemo.com/tm-569-edu-meeting
  
       <!-- ── Static heading inside sticky frame ── -->
       <div class="core-modes-heading-wrapper">
-        <h2 class="core-modes-title">Our Core 2 Learning Modes</h2>
+        <h2 class="core-modes-title">Our Core  Learning Modes</h2>
         <p class="core-modes-subtitle">Read, Write, Listen, Watch: <span>Study Your Way</span></p>
         <div class="core-modes-underline"></div>
       </div>
@@ -2092,9 +2092,17 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
-            if (scrollLocked) { e.preventDefault(); return; }
 
-            var deltaY = touchStartY - e.touches[0].clientY;
+            // If the section is currently shifting or locked, discard all touch micro-movements
+            if (scrollLocked || stepInProgress) {
+              e.preventDefault();
+              return;
+            }
+
+            var currentY = e.touches[0].clientY;
+            var deltaY = touchStartY - currentY;
+
+            // Check if movement gap has crossed the minimum threshold yet
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
@@ -2103,20 +2111,19 @@ https://templatemo.com/tm-569-edu-meeting
 
             if (intercept) {
               e.preventDefault();
-              if (!stepInProgress && !touchHandled) {
+              if (!touchHandled) {
                 touchHandled = true;
                 var target   = goingDown ? currentStep + 1 : currentStep - 1;
                 var dir      = goingDown ? 1 : -1;
-                var vh       = window.innerHeight;
 
                 applyStep(target, dir);
-                lockScroll();
+                scrollToStep(target);
+                lockScroll(1200); /* Keep a solid cooling period to absorb hardware inertia layers */
 
-                var targetY = scrollAnchor + target * vh;
-                window.scrollTo({ top: targetY, behavior: 'instant' });
-                scrollAnchor = targetY;
-
-                touchStartY = e.touches[0].clientY;
+                // CRITICAL CONTINUOUS DRAG CORRECTION: Reset state flags and anchor positions
+                // This clears distance overflow tracking so continuous finger movements calculate cleanly
+                touchStartY = currentY;
+                touchHandled = false;
               }
             }
           }, { passive: false });
