@@ -1900,29 +1900,6 @@ https://templatemo.com/tm-569-edu-meeting
           var STEP_COOLDOWN  = isMobile() ? 1000 : 650; /* longer cooldown on mobile to prevent momentum-scroll step skipping */
           var scrollLocked   = false;
           var scrollLockTimer   = null;
-          var boundaryLockActive = false; // New state variable to enforce a 1-second pause at ends
-
-          function lockScroll(duration) {
-            scrollLocked = true;
-            stepInProgress = true;
-
-            // Check if we just arrived at the absolute top (Step 1, index 0) or absolute bottom (Step 5, index 4)
-            if (currentStep === 0 || currentStep === TOTAL_STEPS - 1) {
-              boundaryLockActive = true;
-            }
-
-            setTimeout(function () {
-              scrollLocked = false;
-              stepInProgress = false;
-
-              // Keep the touch controls locked for an extra 1000ms at boundaries to absorb trailing inertia
-              if (boundaryLockActive) {
-                setTimeout(function() {
-                  boundaryLockActive = false;
-                }, 1000); // 1-second pure pause window
-              }
-            }, duration || 500);
-          }
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
@@ -2074,10 +2051,11 @@ https://templatemo.com/tm-569-edu-meeting
           }, { passive: true });
 
           /* ── Wheel & touch interception scoped to scene only ── */
-          var touchStartY    = 0;
-          var touchHandled   = false;
-          var SWIPE_THRESHOLD = 60;
-          var scrollAnchor   = 0; /* stable pageYOffset recorded at touchstart */
+          var touchStartY       = 0;
+          var touchHandled      = false;
+          var SWIPE_THRESHOLD   = 60;
+          var boundaryLockActive = false;
+          var boundaryLockTimeout = null;
 
           scene.addEventListener('wheel', function onWheel(e) {
             var inZone = inScrollZone();
@@ -2101,13 +2079,35 @@ https://templatemo.com/tm-569-edu-meeting
             }
           }, { passive: false });
 
-          // Optimized Viewport Presence Check for Touch Track Interception
           function isWheelVisible() {
             var scene = document.getElementById('app-scroll-scene');
             if (!scene) return false;
             var rect = scene.getBoundingClientRect();
-            // Active if the scene occupies the screen view area
             return (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5);
+          }
+
+          function lockScroll(duration) {
+            scrollLocked = true;
+            stepInProgress = true;
+
+            if (boundaryLockTimeout) {
+              clearTimeout(boundaryLockTimeout);
+            }
+
+            if (currentStep === 0 || currentStep === TOTAL_STEPS - 1) {
+              boundaryLockActive = true;
+            }
+
+            setTimeout(function () {
+              scrollLocked = false;
+              stepInProgress = false;
+
+              if (boundaryLockActive) {
+                boundaryLockTimeout = setTimeout(function() {
+                  boundaryLockActive = false;
+                }, 1000); // Strict 1-second delay before letting user scroll past limits
+              }
+            }, duration);
           }
 
           window.addEventListener('touchstart', function (e) {
@@ -2119,8 +2119,7 @@ https://templatemo.com/tm-569-edu-meeting
           window.addEventListener('touchmove', function (e) {
             if (!isWheelVisible()) return;
 
-            // CRITICAL INERTIA FREEZE: If an animation is active OR if the 1-second boundary freeze
-            // is processing at Step 1 or Step 5, completely block all window movement.
+            // PROACTIVE LOCK: Force kill the event immediately if an animation or a boundary delay loop is running
             if (scrollLocked || stepInProgress || boundaryLockActive) {
               e.preventDefault();
               return;
@@ -2128,9 +2127,19 @@ https://templatemo.com/tm-569-edu-meeting
 
             var currentY = e.touches[0].clientY;
             var deltaY = touchStartY - currentY;
+            var absDeltaY = Math.abs(deltaY);
 
-            // Wait until movement passes the minimum pixel sensitivity gap threshold
-            if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
+            // AGGRESSIVE EARLY INTERACTION SUPPRESSION:
+            // The moment any vertical finger movement begins, if we are nested on boundary frames,
+            // prevent native scrolling before the threshold logic even runs.
+            if (absDeltaY > 2) {
+              var tentativeGoingDown = deltaY > 0;
+              if ((tentativeGoingDown && currentStep === TOTAL_STEPS - 1) || (!tentativeGoingDown && currentStep === 0)) {
+                e.preventDefault();
+              }
+            }
+
+            if (absDeltaY < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
@@ -2145,20 +2154,16 @@ https://templatemo.com/tm-569-edu-meeting
 
                 applyStep(target, dir);
                 scrollToStep(target);
-                lockScroll(1200); // Continuous cooldown window blocks mobile inertia
+                lockScroll(1200);
 
                 touchStartY = currentY;
               }
             } else {
-              // BOUNDARY LOCK: If the user is on step 1 trying to go up, or step 5 trying to go down,
-              // lock the window on this current swipe frame. This stops continuous micro-drags
-              // from spilling into native page scrolls. The user must lift their finger to exit.
               e.preventDefault();
             }
           }, { passive: false });
 
           window.addEventListener('touchend', function (e) {
-            // Clean up flags when user lifts finger from screen glass
             touchHandled = false;
           }, { passive: true });
 
