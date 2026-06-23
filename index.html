@@ -1157,7 +1157,7 @@ https://templatemo.com/tm-569-edu-meeting
  
       <!-- ── Static heading inside sticky frame ── -->
       <div class="core-modes-heading-wrapper">
-        <h2 class="core-modes-title">Our Core 1 Learning Modes</h2>
+        <h2 class="core-modes-title">Our Core Learning Modes</h2>
         <p class="core-modes-subtitle">Read, Write, Listen, Watch: <span>Study Your Way</span></p>
         <div class="core-modes-underline"></div>
       </div>
@@ -2057,9 +2057,10 @@ https://templatemo.com/tm-569-edu-meeting
           }, { passive: true });
 
           /* ── Wheel & touch interception scoped to scene only ── */
-          var touchStartY   = 0;
-          var touchHandled  = false;
-          var scrollAnchor  = 0; /* stable pageYOffset recorded at touchstart */
+          var touchStartY    = 0;
+          var touchHandled   = false;
+          var SWIPE_THRESHOLD = 60;
+          var scrollAnchor   = 0; /* stable pageYOffset recorded at touchstart */
 
           scene.addEventListener('wheel', function onWheel(e) {
             var inZone = inScrollZone();
@@ -2083,20 +2084,18 @@ https://templatemo.com/tm-569-edu-meeting
             }
           }, { passive: false });
 
-          scene.addEventListener('touchstart', function (e) {
+          window.addEventListener('touchstart', function (e) {
             touchStartY  = e.touches[0].clientY;
             touchHandled = false;
-            /* Capture the anchor once at gesture start so we never
-               read a stale getBoundingClientRect during the touch. */
             scrollAnchor = window.pageYOffset;
-          }, { passive: false });
+          }, { passive: true });
 
-          scene.addEventListener('touchmove', function (e) {
+          window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
-            if (scrollLocked) return;
+            if (scrollLocked) { e.preventDefault(); return; }
 
             var deltaY = touchStartY - e.touches[0].clientY;
-            if (Math.abs(deltaY) < 30) return;
+            if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
@@ -2113,9 +2112,6 @@ https://templatemo.com/tm-569-edu-meeting
                 applyStep(target, dir);
                 lockScroll();
 
-                /* Use scrollAnchor (captured at touchstart) instead of
-                   live getBoundingClientRect to avoid stale-layout bugs
-                   on mobile that cause page teleportation. */
                 var targetY = scrollAnchor + target * vh;
                 window.scrollTo({ top: targetY, behavior: 'instant' });
                 scrollAnchor = targetY;

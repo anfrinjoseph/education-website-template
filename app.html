@@ -1009,6 +1009,48 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('wheel', onWheel, { passive: false });
 
+          /* ── Touch: one swipe = one step (mobile only) ── */
+          var touchStartY    = 0;
+          var touchHandled   = false;
+          var SWIPE_THRESHOLD = 60;
+          var scrollAnchor   = 0;
+
+          window.addEventListener('touchstart', function (e) {
+            touchStartY  = e.touches[0].clientY;
+            touchHandled = false;
+            scrollAnchor = window.pageYOffset;
+          }, { passive: true });
+
+          window.addEventListener('touchmove', function (e) {
+            if (!inScrollZone()) return;
+            if (scrollLocked) { e.preventDefault(); return; }
+            var deltaY = touchStartY - e.touches[0].clientY;
+            if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
+
+            var goingDown = deltaY > 0;
+            var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
+                            (!goingDown && currentStep > 0);
+
+            if (intercept) {
+              e.preventDefault();
+              if (!touchHandled) {
+                touchHandled = true;
+                var target   = goingDown ? currentStep + 1 : currentStep - 1;
+                var dir      = goingDown ? 1 : -1;
+                var vh       = window.innerHeight;
+
+                applyStep(target, dir);
+                lockScroll();
+
+                var targetY = scrollAnchor + target * vh;
+                window.scrollTo({ top: targetY, behavior: 'instant' });
+                scrollAnchor = targetY;
+
+                touchStartY = e.touches[0].clientY;
+              }
+            }
+          }, { passive: false });
+
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
             if (!inScrollZone()) return;
