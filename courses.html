@@ -639,8 +639,30 @@
       /* Toppers track auto-scroll (pause on hover) */
       var track = document.getElementById('toppersTrack');
       if (track) {
-        track.addEventListener('mouseenter', function () { track.style.animationPlayState = 'paused'; });
-        track.addEventListener('mouseleave', function () { track.style.animationPlayState = 'running'; });
+        var lastTouchEnd = 0;
+        var touchHoldTimer = null;
+        track.addEventListener('mouseenter', function () {
+          if (Date.now() - lastTouchEnd < 300) return;
+          track.style.animationPlayState = 'paused';
+        });
+        track.addEventListener('mouseleave', function () {
+          track.style.animationPlayState = 'running';
+        });
+        track.addEventListener('touchstart', function () {
+          touchHoldTimer = setTimeout(function () {
+            track.style.animationPlayState = 'paused';
+          }, 200);
+        }, { passive: true });
+        track.addEventListener('touchend', function () {
+          clearTimeout(touchHoldTimer);
+          track.style.animationPlayState = 'running';
+          lastTouchEnd = Date.now();
+        }, { passive: true });
+        track.addEventListener('touchcancel', function () {
+          clearTimeout(touchHoldTimer);
+          track.style.animationPlayState = 'running';
+          lastTouchEnd = Date.now();
+        }, { passive: true });
       }
     })();
   </script>

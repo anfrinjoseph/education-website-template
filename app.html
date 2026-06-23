@@ -880,6 +880,14 @@ https://templatemo.com/tm-569-edu-meeting
           var currentStep    = 0;
           var stepInProgress = false;
           var STEP_COOLDOWN  = isMobile() ? 200 : 650;
+          var scrollLocked   = false;
+          var scrollLockTimer = null;
+
+          function lockScroll() {
+            scrollLocked = true;
+            if (scrollLockTimer) clearTimeout(scrollLockTimer);
+            scrollLockTimer = setTimeout(function () { scrollLocked = false; }, 500);
+          }
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
@@ -980,6 +988,7 @@ https://templatemo.com/tm-569-edu-meeting
           function onWheel(e) {
             var inZone = inScrollZone();
             if (!inZone) return;
+            if (scrollLocked) { e.preventDefault(); return; }
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -993,6 +1002,7 @@ https://templatemo.com/tm-569-edu-meeting
                 var target = goingDown ? currentStep + 1 : currentStep - 1;
                 applyStep(target, goingDown ? 1 : -1);
                 scrollToStep(target);
+                lockScroll();
               }
             }
           }
@@ -1002,12 +1012,42 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
             if (!inScrollZone()) return;
-            /* On mobile the scroll listener is the only source of truth —
-               never block it with stepInProgress to avoid lag. */
+            if (scrollLocked) return;
             if (!isMobile() && stepInProgress) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
-              applyStep(s, s > currentStep ? 1 : -1);
+              var diff = Math.abs(s - currentStep);
+              if (diff === 1) {
+                applyStep(s, s > currentStep ? 1 : -1);
+                lockScroll();
+              } else if (diff > 1) {
+                /* Entering from outside — snap directly without animation */
+                var deg = s * 90;
+                ring.style.transition = 'none';
+                innerEls.forEach(function (el) { el.style.transition = 'none'; });
+                sparkleWrappers.forEach(function (w) { w.style.transition = 'none'; });
+                ring.style.transform = 'translate(-50%,-50%) rotate(' + deg + 'deg)';
+                innerEls.forEach(function (el) { el.style.transform = 'rotate(' + (-deg) + 'deg)'; });
+                sparkleWrappers.forEach(function (w) { w.style.transform = 'rotate(' + (-deg) + 'deg)'; });
+                void ring.offsetHeight;
+                ring.style.transition = '';
+                innerEls.forEach(function (el) { el.style.transition = ''; });
+                sparkleWrappers.forEach(function (w) { w.style.transition = ''; });
+                nodes.forEach(function (n, i) {
+                  var nodeStep = (TOTAL_STEPS - i) % TOTAL_STEPS;
+                  n.classList.toggle('active-node', nodeStep === s % TOTAL_STEPS);
+                });
+                orbName.textContent = MODES[s];
+                cards.forEach(function (card, i) {
+                  card.classList.remove('active', 'exit-up', 'exit-down');
+                  if (i === s) card.classList.add('active');
+                });
+                dots.forEach(function (d, i) { d.classList.toggle('active', i === s); });
+                if (s > 0) hint.classList.add('hidden');
+                else hint.classList.remove('hidden');
+                currentStep = s;
+                lockScroll();
+              }
             }
           }, { passive: true });
 

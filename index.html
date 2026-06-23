@@ -297,7 +297,7 @@
           border-left: none;
         }
         .app-feature-badges { justify-content: center; }
-        .app-feature-badge { font-size: 12px; padding: 8px 14px 8px 8px; }
+        .app-feature-badge { font-size: 12px; padding: 8px 14px 8px 8px; width: 100%; }
 
       }
       @media (min-width: 768px) {
@@ -604,8 +604,8 @@ https://templatemo.com/tm-569-edu-meeting
       <div class="memory-bg memory-right" data-memory="2" style="top: calc(24% - 120px); right: calc(2% - 210px); width: 50.4%; height: 252px;"><img src="assets/images/memory2.png" alt=""></div>
       <div class="memory-bg memory-left"  data-memory="3" style="top: calc(36% - 130px); left: calc(2% - 170px); width: 42%; height: 210px;"><img src="assets/images/memory3.png" alt=""></div>
       <div class="memory-bg memory-right" data-memory="4" style="top: calc(48% - 80px); right: calc(2% - 30px); width: 42%; height: 210px;"><img src="assets/images/memory4.png" alt=""></div>
-      <div class="memory-bg memory-left"  data-memory="1" style="top: calc(60% - 50px); left: calc(2% - 50px); width: 50.4%; height: 252px;"><img src="assets/images/memory1.png" alt=""></div>
-      <div class="memory-bg memory-right" data-memory="2" style="top: calc(72% + 80px); width: 50.4%; height: 252px;"><img src="assets/images/memory2.png" alt=""></div>
+      <div class="memory-bg memory-left"  data-memory="5" style="top: calc(60% - 50px); left: calc(2% - 130px); width: 50.4%; height: 252px;"><img src="assets/images/memory5.png" alt="" style="opacity: 0.4;"></div>
+      <div class="memory-bg memory-right" data-memory="6" style="top: calc(72% - 20px); width: 50.4%; height: 252px;"><img src="assets/images/memory6.png" alt="" style="opacity: 0.4;"></div>
 
       <!-- SVG path: two overlapping paths, one dim (always visible), one bright
            (revealed progressively on scroll via stroke-dashoffset, see Part 4 JS) -->
@@ -768,24 +768,24 @@ https://templatemo.com/tm-569-edu-meeting
 
         <!-- ── Achievement Statistics Bar ── -->
         <div class="hof-stats">
-          <div class="hof-stat-card">
+          <div class="hof-stat-card reveal-stat" data-delay="0">
             <div class="hof-stat-icon"><i class="fa fa-award"></i></div>
-            <div class="hof-stat-number">23+</div>
+            <div class="hof-stat-number"><span class="stat-number" data-target="23">0</span><span class="stat-suffix">+</span></div>
             <div class="hof-stat-label">PSC First Ranks</div>
           </div>
-          <div class="hof-stat-card">
+          <div class="hof-stat-card reveal-stat" data-delay="150">
             <div class="hof-stat-icon"><i class="fa fa-graduation-cap"></i></div>
-            <div class="hof-stat-number">5000+</div>
+            <div class="hof-stat-number"><span class="stat-number" data-target="5000">0</span><span class="stat-suffix">+</span></div>
             <div class="hof-stat-label">Successful Students</div>
           </div>
-          <div class="hof-stat-card">
+          <div class="hof-stat-card reveal-stat" data-delay="300">
             <div class="hof-stat-icon"><i class="fa fa-trophy"></i></div>
-            <div class="hof-stat-number">15+</div>
+            <div class="hof-stat-number"><span class="stat-number" data-target="15">0</span><span class="stat-suffix">+</span></div>
             <div class="hof-stat-label">Years Excellence</div>
           </div>
-          <div class="hof-stat-card">
+          <div class="hof-stat-card reveal-stat" data-delay="450">
             <div class="hof-stat-icon"><i class="fa fa-bullseye"></i></div>
-            <div class="hof-stat-number">100%</div>
+            <div class="hof-stat-number"><span class="stat-number" data-target="100">0</span><span class="stat-suffix">%</span></div>
             <div class="hof-stat-label">Dedicated Guidance</div>
           </div>
         </div>
@@ -1101,7 +1101,7 @@ https://templatemo.com/tm-569-edu-meeting
         <div class="col-lg-8 col-md-7">
           <div class="app-intro-content-wrapper">
             <h4 class="app-intro-subheading">Our Mobile App</h4>
-            <h2>Read, Write, Listen, Watch: <span class="highlight">Study Your Way</span></h2>
+            <h2>Meet the New Era of <span class="highlight">Competitive Exam Prep</span></h2>
             <div class="app-intro-divider"></div>
 
             <p class="intro-text">
@@ -1155,6 +1155,13 @@ https://templatemo.com/tm-569-edu-meeting
   <div id="app-scroll-scene">
     <div class="app-sticky-frame" id="appStickyFrame">
  
+      <!-- ── Static heading inside sticky frame ── -->
+      <div class="core-modes-heading-wrapper">
+        <h2 class="core-modes-title">Our Core Learning Modes</h2>
+        <p class="core-modes-subtitle">Read, Write, Listen, Watch: <span>Study Your Way</span></p>
+        <div class="core-modes-underline"></div>
+      </div>
+
       <!-- Step indicator dots -->
       <div class="step-dots" id="stepDots">
         <div class="step-dot active"></div>
@@ -1162,13 +1169,12 @@ https://templatemo.com/tm-569-edu-meeting
         <div class="step-dot"></div>
         <div class="step-dot"></div>
       </div>
- 
+  
       <!-- Left: mode content cards -->
       <div class="app-left-pane">
-
+  
         <!-- Card 0 – Read -->
         <div class="mode-card active" data-index="0">
-          <div class="mode-section-heading">Our Core Learning Modes</div>
           <div class="mode-icon icon-read">📖</div>
           <h3><span class="highlight">Reading</span> Mode</h3>
           <p>
@@ -1180,10 +1186,9 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="mode-progress-fill" style="width: 25%;"></div>
           </div>
         </div>
- 
+  
         <!-- Card 1 – Write -->
         <div class="mode-card" data-index="1">
-          <div class="mode-section-heading">Our Core Learning Modes</div>
           <div class="mode-icon icon-write">✍️</div>
           <h3><span class="highlight">Writing</span> Mode</h3>
           <p>
@@ -1195,10 +1200,9 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="mode-progress-fill" style="width: 50%;"></div>
           </div>
         </div>
- 
+  
         <!-- Card 2 – Listen -->
         <div class="mode-card" data-index="2">
-          <div class="mode-section-heading">Our Core Learning Modes</div>
           <div class="mode-icon icon-listen">🎧</div>
           <h3><span class="highlight">Audio</span> Mode</h3>
           <p>
@@ -1210,10 +1214,9 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="mode-progress-fill" style="width: 75%;"></div>
           </div>
         </div>
- 
+  
         <!-- Card 3 – Watch -->
         <div class="mode-card" data-index="3">
-          <div class="mode-section-heading">Our Core Learning Modes</div>
           <div class="mode-icon icon-watch">🎬</div>
           <h3><span class="highlight">Video</span> Mode</h3>
           <p>
@@ -1225,13 +1228,13 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="mode-progress-fill" style="width: 100%;"></div>
           </div>
         </div>
- 
+  
       </div><!-- /app-left-pane -->
- 
+  
       <!-- Right: rotating wheel -->
       <div class="app-right-pane">
         <div class="wheel-wrapper">
- 
+  
           <!-- Decorative spoke lines -->
           <svg class="wheel-spokes" xmlns="http://www.w3.org/2000/svg">
             <line x1="50%" y1="50%" x2="50%" y2="10%"  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
@@ -1239,10 +1242,10 @@ https://templatemo.com/tm-569-edu-meeting
             <line x1="50%" y1="50%" x2="50%" y2="90%"  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
             <line x1="50%" y1="50%" x2="10%" y2="50%"  stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
           </svg>
- 
+  
           <!-- Rotating ring with four nodes -->
           <div class="wheel-ring" id="wheelRing">
- 
+  
             <!-- Node 0 – Read (top) -->
             <div class="wheel-node active-node" data-node="0">
               <div class="node-inner">
@@ -1250,7 +1253,7 @@ https://templatemo.com/tm-569-edu-meeting
                 <span class="node-label">Read</span>
               </div>
             </div>
- 
+  
             <!-- Node 1 – Write (right) -->
             <div class="wheel-node" data-node="1">
               <div class="node-inner">
@@ -1258,7 +1261,7 @@ https://templatemo.com/tm-569-edu-meeting
                 <span class="node-label">Write</span>
               </div>
             </div>
- 
+  
             <!-- Node 2 – Listen (bottom) -->
             <div class="wheel-node" data-node="2">
               <div class="node-inner">
@@ -1266,7 +1269,7 @@ https://templatemo.com/tm-569-edu-meeting
                 <span class="node-label">Listen</span>
               </div>
             </div>
- 
+  
             <!-- Node 3 – Watch (left) -->
             <div class="wheel-node" data-node="3">
               <div class="node-inner">
@@ -1274,7 +1277,7 @@ https://templatemo.com/tm-569-edu-meeting
                 <span class="node-label">Watch</span>
               </div>
             </div>
- 
+  
             <!-- ── Sparkles ── -->
             <div class="sparkle" style="top:calc(50% + -30px);left:calc(50% + 80px);height:15px;--hw:7.5px;animation:twinkle2 3.2s ease-in-out 0.5s infinite"></div>
             <div class="sparkle" style="top:calc(50% + -70px);left:calc(50% + 40px);height:8px;--hw:4px;animation:twinkle1 1.8s ease-in-out 1.2s infinite"></div>
@@ -1339,7 +1342,7 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="sparkle" style="top:calc(50% + -350px);left:calc(50% + 60px);height:36px;--hw:18px;animation:twinkle2 3.9s ease-in-out 0.3s infinite"></div>
             <div class="sparkle" style="top:calc(50% + 350px);left:calc(50% + -120px);height:22px;--hw:11px;animation:twinkle4 2.5s ease-in-out 2.4s infinite"></div>
           </div><!-- /wheel-ring -->
- 
+  
           <!-- Centre orb -->
           <div class="wheel-orb">
             <div class="wheel-orb-inner">
@@ -1347,16 +1350,16 @@ https://templatemo.com/tm-569-edu-meeting
               <span class="orb-name" id="orbName">Read</span>
             </div>
           </div>
- 
+  
         </div><!-- /wheel-wrapper -->
       </div><!-- /app-right-pane -->
-
+  
       <!-- Scroll hint — centred at the bottom of the sticky frame -->
       <div class="scroll-hint" id="scrollHint">
         <span>scroll</span>
         <div class="scroll-hint-arrow"></div>
       </div>
- 
+  
     </div><!-- /app-sticky-frame -->
   </div><!-- /app-scroll-scene -->
  
@@ -1895,6 +1898,14 @@ https://templatemo.com/tm-569-edu-meeting
           var currentStep    = 0;
           var stepInProgress = false;
           var STEP_COOLDOWN  = isMobile() ? 200 : 650;
+          var scrollLocked   = false;
+          var scrollLockTimer = null;
+
+          function lockScroll() {
+            scrollLocked = true;
+            if (scrollLockTimer) clearTimeout(scrollLockTimer);
+            scrollLockTimer = setTimeout(function () { scrollLocked = false; }, 500);
+          }
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
@@ -2007,9 +2018,41 @@ https://templatemo.com/tm-569-edu-meeting
             var inZone = inScrollZone();
             if (!inZone) return;
             if (stepInProgress) return;
+            if (scrollLocked) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
-              applyStep(s, s > currentStep ? 1 : -1);
+              var diff = Math.abs(s - currentStep);
+              if (diff === 1) {
+                applyStep(s, s > currentStep ? 1 : -1);
+                lockScroll();
+              } else if (diff > 1) {
+                /* Entering from outside — snap directly without animation */
+                var deg = s * 90;
+                ring.style.transition = 'none';
+                innerEls.forEach(function (el) { el.style.transition = 'none'; });
+                sparkleWrappers.forEach(function (w) { w.style.transition = 'none'; });
+                ring.style.transform = 'translate(-50%,-50%) rotate(' + deg + 'deg)';
+                innerEls.forEach(function (el) { el.style.transform = 'rotate(' + (-deg) + 'deg)'; });
+                sparkleWrappers.forEach(function (w) { w.style.transform = 'rotate(' + (-deg) + 'deg)'; });
+                void ring.offsetHeight;
+                ring.style.transition = '';
+                innerEls.forEach(function (el) { el.style.transition = ''; });
+                sparkleWrappers.forEach(function (w) { w.style.transition = ''; });
+                nodes.forEach(function (n, i) {
+                  var nodeStep = (TOTAL_STEPS - i) % TOTAL_STEPS;
+                  n.classList.toggle('active-node', nodeStep === s % TOTAL_STEPS);
+                });
+                orbName.textContent = MODES[s];
+                cards.forEach(function (card, i) {
+                  card.classList.remove('active', 'exit-up', 'exit-down');
+                  if (i === s) card.classList.add('active');
+                });
+                dots.forEach(function (d, i) { d.classList.toggle('active', i === s); });
+                if (s > 0) hint.classList.add('hidden');
+                else hint.classList.remove('hidden');
+                currentStep = s;
+                lockScroll();
+              }
             }
           }, { passive: true });
 
@@ -2021,6 +2064,7 @@ https://templatemo.com/tm-569-edu-meeting
           scene.addEventListener('wheel', function onWheel(e) {
             var inZone = inScrollZone();
             if (!inZone) return;
+            if (scrollLocked) { e.preventDefault(); return; }
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -2034,6 +2078,7 @@ https://templatemo.com/tm-569-edu-meeting
                 var target = goingDown ? currentStep + 1 : currentStep - 1;
                 applyStep(target, goingDown ? 1 : -1);
                 scrollToStep(target);
+                lockScroll();
               }
             }
           }, { passive: false });
@@ -2048,6 +2093,7 @@ https://templatemo.com/tm-569-edu-meeting
 
           scene.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
+            if (scrollLocked) return;
 
             var deltaY = touchStartY - e.touches[0].clientY;
             if (Math.abs(deltaY) < 30) return;
@@ -2065,6 +2111,7 @@ https://templatemo.com/tm-569-edu-meeting
                 var vh       = window.innerHeight;
 
                 applyStep(target, dir);
+                lockScroll();
 
                 /* Use scrollAnchor (captured at touchstart) instead of
                    live getBoundingClientRect to avoid stale-layout bugs
@@ -2250,11 +2297,33 @@ https://templatemo.com/tm-569-edu-meeting
         (function () {
           var track = document.getElementById('toppersTrack');
           if (track) {
-            track.addEventListener('mouseenter', function () { track.style.animationPlayState = 'paused'; });
-            track.addEventListener('mouseleave', function () { track.style.animationPlayState = 'running'; });
+            var lastTouchEnd = 0;
+            var touchHoldTimer = null;
+            track.addEventListener('mouseenter', function () {
+              if (Date.now() - lastTouchEnd < 300) return;
+              track.style.animationPlayState = 'paused';
+            });
+            track.addEventListener('mouseleave', function () {
+              track.style.animationPlayState = 'running';
+            });
+            track.addEventListener('touchstart', function () {
+              touchHoldTimer = setTimeout(function () {
+                track.style.animationPlayState = 'paused';
+              }, 200);
+            }, { passive: true });
+            track.addEventListener('touchend', function () {
+              clearTimeout(touchHoldTimer);
+              track.style.animationPlayState = 'running';
+              lastTouchEnd = Date.now();
+            }, { passive: true });
+            track.addEventListener('touchcancel', function () {
+              clearTimeout(touchHoldTimer);
+              track.style.animationPlayState = 'running';
+              lastTouchEnd = Date.now();
+            }, { passive: true });
           }
 
-          /* ── IntersectionObserver for topper cards & slide animations ── */
+          /* ── IntersectionObserver for topper cards, stats & slide animations ── */
           if ('IntersectionObserver' in window) {
             var io = new IntersectionObserver(function (entries) {
               entries.forEach(function (entry) {
@@ -2262,6 +2331,12 @@ https://templatemo.com/tm-569-edu-meeting
                 var el = entry.target;
                 if (el.classList.contains('topper-card')) {
                   el.classList.add('tp-visible');
+                } else if (el.classList.contains('reveal-stat')) {
+                  var delay = parseInt(el.getAttribute('data-delay')) || 0;
+                  setTimeout(function () {
+                    el.classList.add('stat-visible');
+                    animateCounter(el.querySelector('.stat-number'));
+                  }, delay);
                 } else if (el.classList.contains('slide-in-left')) {
                   el.classList.add('anim-active');
                 } else if (el.classList.contains('slide-in-right')) {
@@ -2274,10 +2349,34 @@ https://templatemo.com/tm-569-edu-meeting
             document.querySelectorAll('.topper-card').forEach(function (t) {
               if (t.offsetParent !== null) io.observe(t);
             });
+            document.querySelectorAll('.reveal-stat').forEach(function (s) { io.observe(s); });
             document.querySelectorAll('.slide-in-left, .slide-in-right').forEach(function (el) { io.observe(el); });
           } else {
             document.querySelectorAll('.topper-card').forEach(function (t) { t.classList.add('tp-visible'); });
+            document.querySelectorAll('.reveal-stat').forEach(function (s) { s.classList.add('stat-visible'); });
             document.querySelectorAll('.slide-in-left, .slide-in-right').forEach(function (el) { el.classList.add('anim-active'); });
+          }
+
+          /* Counter animation (ease-out, supports decimal) */
+          function animateCounter(el) {
+            if (!el || el.dataset.animated) return;
+            el.dataset.animated = '1';
+            var target = parseFloat(el.dataset.target);
+            if (!target) return;
+            var isDecimal = el.dataset.decimal === 'true';
+            var duration = 1200;
+            var startTime = null;
+
+            function step(timestamp) {
+              if (!startTime) startTime = timestamp;
+              var elapsed = timestamp - startTime;
+              var progress = Math.min(elapsed / duration, 1);
+              var eased = 1 - (1 - progress) * (1 - progress);
+              var current = eased * target;
+              el.textContent = isDecimal ? current.toFixed(1) : Math.round(current);
+              if (progress < 1) requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
           }
         })();
 
@@ -2805,24 +2904,14 @@ https://templatemo.com/tm-569-edu-meeting
           var nodeOnPath = nodeCenter - rect.top;
           var nodePct = nodeOnPath / rect.height;
 
-          var revealed = centerPct > nodePct + 0.025;
-          if (revealed) {
-            m.classList.remove('is-active');
-            m.classList.add('is-visited');
-          } else if (centerPct >= nodePct - 0.025) {
+          if (centerPct >= nodePct - 0.025) {
             m.classList.add('is-active');
             m.classList.remove('is-visited');
           } else {
             m.classList.remove('is-active', 'is-visited');
           }
           if (memoryBgs[i]) {
-            /* On mobile/tablet, reveal the photo at the same moment
-               the milestone content becomes highlighted (is-active).
-               Desktop keeps using "revealed" exactly as before — untouched. */
-            var imageRevealed = mobileLayoutActive
-              ? (centerPct >= (nodePct - 0.025))
-              : revealed;
-            memoryBgs[i].classList.toggle('is-revealed', imageRevealed);
+            memoryBgs[i].classList.toggle('is-revealed', centerPct >= (nodePct - 0.025));
           }
         });
 
