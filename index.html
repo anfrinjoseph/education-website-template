@@ -707,7 +707,7 @@ https://templatemo.com/tm-569-edu-meeting
           <img src="assets/images/mcard6.png" alt="2025 recent achievement photo">
         </div>
         <div class="milestone-content">
-          <span class="milestone-year">2025+</span>
+          <span class="milestone-year">2026+</span>
           <h3 class="milestone-title">Continuing Excellence</h3>
           <p class="milestone-text">The journey continues. Built on legacy, inspired by students, and driven by a commitment to keep getting better every year.</p>
         </div>
@@ -729,7 +729,7 @@ https://templatemo.com/tm-569-edu-meeting
       <div class="destination-marker">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10L12 6 2 10l10 4 10-4z"/><path d="M6 12v5c3 1.5 9 1.5 12 0v-5"/></svg>
       </div>
-      <span class="destination-range">2009 &ndash; 2025+</span>
+      <span class="destination-range">2009 &ndash; 2026+</span>
       <h3 class="destination-heading">Thank You For Being Part Of Our Journey</h3>
       <p class="destination-subtext">The next chapter is still being written.<br>And the best is yet to come.</p>
     </div>
@@ -1899,12 +1899,29 @@ https://templatemo.com/tm-569-edu-meeting
           var stepInProgress = false;
           var STEP_COOLDOWN  = isMobile() ? 1000 : 650; /* longer cooldown on mobile to prevent momentum-scroll step skipping */
           var scrollLocked   = false;
-          var scrollLockTimer = null;
+          var scrollLockTimer   = null;
+          var boundaryLockActive = false; // New state variable to enforce a 1-second pause at ends
 
-          function lockScroll() {
+          function lockScroll(duration) {
             scrollLocked = true;
-            if (scrollLockTimer) clearTimeout(scrollLockTimer);
-            scrollLockTimer = setTimeout(function () { scrollLocked = false; }, 500);
+            stepInProgress = true;
+
+            // Check if we just arrived at the absolute top (Step 1, index 0) or absolute bottom (Step 5, index 4)
+            if (currentStep === 0 || currentStep === TOTAL_STEPS - 1) {
+              boundaryLockActive = true;
+            }
+
+            setTimeout(function () {
+              scrollLocked = false;
+              stepInProgress = false;
+
+              // Keep the touch controls locked for an extra 1000ms at boundaries to absorb trailing inertia
+              if (boundaryLockActive) {
+                setTimeout(function() {
+                  boundaryLockActive = false;
+                }, 1000); // 1-second pure pause window
+              }
+            }, duration || 500);
           }
 
           /* ── Apply a step (0-3) ── */
@@ -2084,17 +2101,27 @@ https://templatemo.com/tm-569-edu-meeting
             }
           }, { passive: false });
 
+          // Optimized Viewport Presence Check for Touch Track Interception
+          function isWheelVisible() {
+            var scene = document.getElementById('app-scroll-scene');
+            if (!scene) return false;
+            var rect = scene.getBoundingClientRect();
+            // Active if the scene occupies the screen view area
+            return (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5);
+          }
+
           window.addEventListener('touchstart', function (e) {
-            touchStartY  = e.touches[0].clientY;
+            if (!isWheelVisible()) return;
+            touchStartY = e.touches[0].clientY;
             touchHandled = false;
-            scrollAnchor = window.pageYOffset;
           }, { passive: true });
 
           window.addEventListener('touchmove', function (e) {
-            if (!inScrollZone()) return;
+            if (!isWheelVisible()) return;
 
-            // If the section is currently shifting or locked, discard all touch micro-movements
-            if (scrollLocked || stepInProgress) {
+            // CRITICAL INERTIA FREEZE: If an animation is active OR if the 1-second boundary freeze
+            // is processing at Step 1 or Step 5, completely block all window movement.
+            if (scrollLocked || stepInProgress || boundaryLockActive) {
               e.preventDefault();
               return;
             }
@@ -2102,7 +2129,7 @@ https://templatemo.com/tm-569-edu-meeting
             var currentY = e.touches[0].clientY;
             var deltaY = touchStartY - currentY;
 
-            // Check if movement gap has crossed the minimum threshold yet
+            // Wait until movement passes the minimum pixel sensitivity gap threshold
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
@@ -2118,15 +2145,22 @@ https://templatemo.com/tm-569-edu-meeting
 
                 applyStep(target, dir);
                 scrollToStep(target);
-                lockScroll(1200); /* Keep a solid cooling period to absorb hardware inertia layers */
+                lockScroll(1200); // Continuous cooldown window blocks mobile inertia
 
-                // CRITICAL CONTINUOUS DRAG CORRECTION: Reset state flags and anchor positions
-                // This clears distance overflow tracking so continuous finger movements calculate cleanly
                 touchStartY = currentY;
-                touchHandled = false;
               }
+            } else {
+              // BOUNDARY LOCK: If the user is on step 1 trying to go up, or step 5 trying to go down,
+              // lock the window on this current swipe frame. This stops continuous micro-drags
+              // from spilling into native page scrolls. The user must lift their finger to exit.
+              e.preventDefault();
             }
           }, { passive: false });
+
+          window.addEventListener('touchend', function (e) {
+            // Clean up flags when user lifts finger from screen glass
+            touchHandled = false;
+          }, { passive: true });
 
           /* ── Spawn decorative particles ── */
           var container = document.getElementById('appParticles');
