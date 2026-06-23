@@ -879,7 +879,7 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── State ── */
           var currentStep    = 0;
           var stepInProgress = false;
-          var STEP_COOLDOWN  = isMobile() ? 200 : 650;
+          var STEP_COOLDOWN  = isMobile() ? 1000 : 650; /* longer cooldown on mobile to prevent momentum-scroll step skipping */
           var scrollLocked   = false;
           var scrollLockTimer = null;
 

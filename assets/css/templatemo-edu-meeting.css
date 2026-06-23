@@ -5719,7 +5719,8 @@ section.learning-process .container {
 
   .app-promo-title, .app-promo-title-accent { font-size: 24px; }
   .app-promo-phone-wrap { max-width: 240px; margin-top: 30px; }
-  .app-promo-buttons { flex-direction: column; align-items: flex-start; }
+  .app-promo-buttons { flex-direction: column; align-items: center; }
+  .app-promo-buttons .app-promo-btn-primary { align-self: flex-start; }
 
   .cp-title { font-size: 26px; }
 
