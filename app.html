@@ -1016,14 +1016,17 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
-            /* Safety: if the Premium Features section is visible on screen, don't touch the wheel */
-            var pfSection = document.querySelector('.pf-section');
-            if (pfSection) {
-              var pfRect = pfSection.getBoundingClientRect();
-              if (pfRect.top < window.innerHeight && pfRect.bottom > 0) return;
+
+            // If the section is already animating or locked, block all incoming touch events
+            if (scrollLocked || stepInProgress) {
+              e.preventDefault();
+              return;
             }
-            if (scrollLocked || stepInProgress) { e.preventDefault(); return; }
-            var deltaY = touchStartY - e.touches[0].clientY;
+
+            var currentY = e.touches[0].clientY;
+            var deltaY = touchStartY - currentY;
+
+            // If the finger hasn't moved past the threshold yet, do nothing
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
@@ -1036,16 +1039,14 @@ https://templatemo.com/tm-569-edu-meeting
                 touchHandled = true;
                 var target   = goingDown ? currentStep + 1 : currentStep - 1;
                 var dir      = goingDown ? 1 : -1;
-                var vh       = window.innerHeight;
 
                 applyStep(target, dir);
-                lockScroll(1200);
+                scrollToStep(target);
+                lockScroll(1200); /* Keep a long block window to discard mobile momentum */
 
-                var targetY = scrollAnchor + target * vh;
-                window.scrollTo({ top: targetY, behavior: 'instant' });
-                scrollAnchor = targetY;
-
-                touchStartY = e.touches[0].clientY;
+                // CRITICAL MOBILE FIX: Reset the touch start anchor position to the current finger location
+                // This resets the math calculations instantly so continuous dragging doesn't cause page jumps
+                touchStartY = currentY;
               }
             }
           }, { passive: false });
