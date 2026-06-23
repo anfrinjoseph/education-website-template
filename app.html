@@ -1002,6 +1002,7 @@ https://templatemo.com/tm-569-edu-meeting
             var scene = document.getElementById('app-scroll-scene');
             if (!scene) return false;
             var rect = scene.getBoundingClientRect();
+            // True if the wheel scene is currently in the active viewport view
             return (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5);
           }
 
@@ -1024,7 +1025,7 @@ https://templatemo.com/tm-569-edu-meeting
               if (boundaryLockActive) {
                 boundaryLockTimeout = setTimeout(function() {
                   boundaryLockActive = false;
-                }, 1000); // Strict 1-second delay before letting user scroll past limits
+                }, 800); // 800ms absorption block to catch immediate touch inertia remnants
               }
             }, duration);
           }
@@ -1038,8 +1039,8 @@ https://templatemo.com/tm-569-edu-meeting
           window.addEventListener('touchmove', function (e) {
             if (!isWheelVisible()) return;
 
-            // PROACTIVE LOCK: Force kill the event immediately if an animation or a boundary delay loop is running
-            if (scrollLocked || stepInProgress || boundaryLockActive) {
+            // If an animation translation sequence is running, force kill layout creep
+            if (scrollLocked || stepInProgress) {
               e.preventDefault();
               return;
             }
@@ -1048,23 +1049,24 @@ https://templatemo.com/tm-569-edu-meeting
             var deltaY = touchStartY - currentY;
             var absDeltaY = Math.abs(deltaY);
 
-            // AGGRESSIVE EARLY INTERACTION SUPPRESSION:
-            // The moment any vertical finger movement begins, if we are nested on boundary frames,
-            // prevent native scrolling before the threshold logic even runs.
-            if (absDeltaY > 2) {
-              var tentativeGoingDown = deltaY > 0;
-              if ((tentativeGoingDown && currentStep === TOTAL_STEPS - 1) || (!tentativeGoingDown && currentStep === 0)) {
-                e.preventDefault();
+            if (absDeltaY < SWIPE_THRESHOLD) {
+              // Early tracking guard: If we are at the end boundary and the safety timer is active,
+              // kill the micro-movement to prevent layout drifting.
+              if (boundaryLockActive) {
+                var initialDown = deltaY > 0;
+                if ((initialDown && currentStep === TOTAL_STEPS - 1) || (!initialDown && currentStep === 0)) {
+                  e.preventDefault();
+                }
               }
+              return;
             }
-
-            if (absDeltaY < SWIPE_THRESHOLD) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
                             (!goingDown && currentStep > 0);
 
             if (intercept) {
+              // Active navigation frame inside internal step blocks: intercept cleanly
               e.preventDefault();
               if (!touchHandled) {
                 touchHandled = true;
@@ -1078,7 +1080,14 @@ https://templatemo.com/tm-569-edu-meeting
                 touchStartY = currentY;
               }
             } else {
-              e.preventDefault();
+              // EXIT STRATEGY: The user wants to leave the section.
+              if (boundaryLockActive) {
+                // If the cooldown timer hasn't finished absorbing inertia yet, hold the position.
+                e.preventDefault();
+              } else {
+                // Cooldown over! Let the browser natively scroll up past Step 1 or down past Step 5.
+                // Do NOT call e.preventDefault() here.
+              }
             }
           }, { passive: false });
 
