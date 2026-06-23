@@ -1016,6 +1016,12 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
+            /* Safety: if the Premium Features section is visible on screen, don't touch the wheel */
+            var pfSection = document.querySelector('.pf-section');
+            if (pfSection) {
+              var pfRect = pfSection.getBoundingClientRect();
+              if (pfRect.top < window.innerHeight && pfRect.bottom > 0) return;
+            }
             if (scrollLocked || stepInProgress) { e.preventDefault(); return; }
             var deltaY = touchStartY - e.touches[0].clientY;
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
@@ -1258,6 +1264,12 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
+            /* Safety: if the Spinning Wheel is still active on screen, don't touch the slides */
+            var wheelScene = document.getElementById('app-scroll-scene');
+            if (wheelScene) {
+              var wheelRect = wheelScene.getBoundingClientRect();
+              if (wheelRect.top <= 100 && wheelRect.bottom >= window.innerHeight - 100) return;
+            }
             if (isTransitionLocked) {
               e.preventDefault();
               return;
