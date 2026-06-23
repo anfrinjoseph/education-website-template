@@ -879,27 +879,27 @@ https://templatemo.com/tm-569-edu-meeting
           /* ── State ── */
           var currentStep    = 0;
           var stepInProgress = false;
-          var STEP_COOLDOWN  = isMobile() ? 1000 : 650; /* longer cooldown on mobile to prevent momentum-scroll step skipping */
           var scrollLocked   = false;
           var scrollLockTimer = null;
 
-          function lockScroll() {
+          function lockScroll(duration) {
             scrollLocked = true;
+            stepInProgress = true;
             if (scrollLockTimer) clearTimeout(scrollLockTimer);
-            scrollLockTimer = setTimeout(function () { scrollLocked = false; }, 500);
+            scrollLockTimer = setTimeout(function () {
+              scrollLocked = false;
+              stepInProgress = false;
+            }, duration || 500);
           }
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
             if (step < 0 || step >= TOTAL_STEPS) return;
             if (step === currentStep) {
-              if (!isMobile()) stepInProgress = false;
+              stepInProgress = false;
               return;
             }
-            /* On mobile, stepInProgress is only relevant for
-               wheel-hijack debounce (desktop only). The scroll listener
-               updates the wheel on every scroll event without blocking. */
-            stepInProgress = !isMobile();
+            stepInProgress = true;
 
             var deg = step * 90;
             ring.style.transform = 'translate(-50%,-50%) rotate(' + deg + 'deg)';
@@ -936,11 +936,6 @@ https://templatemo.com/tm-569-edu-meeting
             else          { hint.classList.remove('hidden'); }
 
             currentStep = step;
-
-            if (!isMobile()) {
-              setTimeout(function () { stepInProgress = false; }, STEP_COOLDOWN);
-              setTimeout(function () { stepInProgress = false; }, STEP_COOLDOWN * 1.5);
-            }
           }
 
           /*
@@ -988,7 +983,7 @@ https://templatemo.com/tm-569-edu-meeting
           function onWheel(e) {
             var inZone = inScrollZone();
             if (!inZone) return;
-            if (scrollLocked) { e.preventDefault(); return; }
+            if (scrollLocked || stepInProgress) { e.preventDefault(); return; }
 
             var goingDown = e.deltaY > 0;
             var goingUp   = !goingDown && e.deltaY < 0;
@@ -998,12 +993,10 @@ https://templatemo.com/tm-569-edu-meeting
 
             if (intercept) {
               e.preventDefault();
-              if (!stepInProgress) {
-                var target = goingDown ? currentStep + 1 : currentStep - 1;
-                applyStep(target, goingDown ? 1 : -1);
-                scrollToStep(target);
-                lockScroll();
-              }
+              var target = goingDown ? currentStep + 1 : currentStep - 1;
+              applyStep(target, goingDown ? 1 : -1);
+              scrollToStep(target);
+              lockScroll(650);
             }
           }
 
@@ -1023,7 +1016,7 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
-            if (scrollLocked) { e.preventDefault(); return; }
+            if (scrollLocked || stepInProgress) { e.preventDefault(); return; }
             var deltaY = touchStartY - e.touches[0].clientY;
             if (Math.abs(deltaY) < SWIPE_THRESHOLD) return;
 
@@ -1040,7 +1033,7 @@ https://templatemo.com/tm-569-edu-meeting
                 var vh       = window.innerHeight;
 
                 applyStep(target, dir);
-                lockScroll();
+                lockScroll(1200);
 
                 var targetY = scrollAnchor + target * vh;
                 window.scrollTo({ top: targetY, behavior: 'instant' });
@@ -1053,9 +1046,10 @@ https://templatemo.com/tm-569-edu-meeting
 
           /* ── Sync on real scroll (handles keyboard, scrollbar drag, etc.) ── */
           window.addEventListener('scroll', function () {
+            if (isMobile()) return;
             if (!inScrollZone()) return;
             if (scrollLocked) return;
-            if (!isMobile() && stepInProgress) return;
+            if (stepInProgress) return;
             var s = stepFromScroll();
             if (s !== currentStep) {
               var diff = Math.abs(s - currentStep);
