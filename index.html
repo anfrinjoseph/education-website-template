@@ -2055,6 +2055,7 @@ https://templatemo.com/tm-569-edu-meeting
           var touchStartY       = 0;
           var touchHandled      = false;
           var SWIPE_THRESHOLD   = 60;
+          var zoneEnteredThisGesture = false;
           var boundaryLockActive = false;
           var boundaryLockTimeout = null;
 
@@ -2114,6 +2115,7 @@ https://templatemo.com/tm-569-edu-meeting
           }
 
           window.addEventListener('touchstart', function (e) {
+            zoneEnteredThisGesture = false;
             if (!isWheelVisible()) return;
             touchStartY = e.touches[0].clientY;
             touchHandled = false;
@@ -2122,18 +2124,21 @@ https://templatemo.com/tm-569-edu-meeting
 
           scene.addEventListener('touchmove', function (e) {
             if (!inScrollZone()) return;
-
-            /* Once this gesture has already triggered a step change,
-               keep blocking native scroll for the REST of this same
-               touch — even if we've just landed on the first/last
-               step and the normal intercept condition would now read
-               false. Native scroll should only resume on the NEXT
-               separate gesture (after touchend), not mid-swipe.
-               This is what was causing the page to drift down right
-               after the wheel finished spinning on the 3rd→4th
-               (and symmetrically 2nd→1st) step transition. */
             if (touchHandled) {
               e.preventDefault();
+              return;
+            }
+
+            /* The section may have only just become fully pinned
+               mid-gesture (isWheelVisible fired touchstart earlier,
+               before inScrollZone was true). Re-baseline here on
+               first entry so deltaY doesn't include stale approach
+               movement from before pinning — this is what was
+               causing the boundary-transition page jump. */
+            if (!zoneEnteredThisGesture) {
+              zoneEnteredThisGesture = true;
+              touchStartY = e.touches[0].clientY;
+              scrollAnchor = scene.getBoundingClientRect().top + window.pageYOffset;
               return;
             }
 
@@ -2154,9 +2159,6 @@ https://templatemo.com/tm-569-edu-meeting
 
                 applyStep(target, dir);
 
-                /* Use scrollAnchor (captured at touchstart) instead of
-                   live getBoundingClientRect to avoid stale-layout bugs
-                   on mobile that cause page teleportation. */
                 var targetY = scrollAnchor + target * vh;
                 window.scrollTo({ top: targetY, behavior: 'instant' });
                 scrollAnchor = targetY;
@@ -2166,6 +2168,7 @@ https://templatemo.com/tm-569-edu-meeting
 
           window.addEventListener('touchend', function (e) {
             touchHandled = false;
+            zoneEnteredThisGesture = false;
           }, { passive: true });
 
           /* ── Spawn decorative particles ── */
