@@ -565,7 +565,7 @@ https://templatemo.com/tm-569-edu-meeting
             <div class="about-card-overlay"></div>
             
             <div class="about-card-content">
-              <h3>About Center 11</h3>
+              <h3>About Center 21</h3>
               <p>
                 Founded in 2009, Aashirwad Institute of Teachers is a premier institution in Kerala, specializing in competitive exam coaching, with a particular focus on PSC and KTET training. Headquartered in Vaikom, the institute has grown to include multiple branches across Kerala, offering personalized coaching and innovative learning tools to help students achieve success in their academic and professional aspirations. At Aashirwad, we offer a wide array of courses including PSC, KTET, Navodaya Entrance, Civil Service Nurturing Programs, and more. Our curriculum is designed to foster critical thinking and practical skills, with a commitment to excellence that has earned us 23 first ranks in PSC exams and a consistent record of Navodaya admissions from Kottayam since 2010. We are proud innovators, introducing India’s first digital rank file with interactive features, enhancing the learning experience for our students. With a strong emphasis on results, our “Success Guarantee” ensures that if KTET candidates do not pass, they can avail of the next training session free of charge. Our publications, including subject-specific rank files and current affairs updates, further support students in their preparation. Aashirwad remains dedicated to shaping future leaders by providing world-class education and unmatched guidance.
               </p>
@@ -1900,6 +1900,7 @@ https://templatemo.com/tm-569-edu-meeting
           var STEP_COOLDOWN  = isMobile() ? 1000 : 650; /* longer cooldown on mobile to prevent momentum-scroll step skipping */
           var scrollLocked   = false;
           var scrollLockTimer   = null;
+          var scrollAnchor   = 0;
 
           /* ── Apply a step (0-3) ── */
           function applyStep(step, direction) {
@@ -2115,59 +2116,51 @@ https://templatemo.com/tm-569-edu-meeting
             if (!isWheelVisible()) return;
             touchStartY = e.touches[0].clientY;
             touchHandled = false;
+            scrollAnchor = scene.getBoundingClientRect().top + window.pageYOffset;
           }, { passive: true });
 
-          window.addEventListener('touchmove', function (e) {
-            if (!isWheelVisible()) return;
+          scene.addEventListener('touchmove', function (e) {
+            if (!inScrollZone()) return;
 
-            // If an animation translation sequence is running, force kill layout creep
-            if (scrollLocked || stepInProgress) {
+            /* Once this gesture has already triggered a step change,
+               keep blocking native scroll for the REST of this same
+               touch — even if we've just landed on the first/last
+               step and the normal intercept condition would now read
+               false. Native scroll should only resume on the NEXT
+               separate gesture (after touchend), not mid-swipe.
+               This is what was causing the page to drift down right
+               after the wheel finished spinning on the 3rd→4th
+               (and symmetrically 2nd→1st) step transition. */
+            if (touchHandled) {
               e.preventDefault();
               return;
             }
 
-            var currentY = e.touches[0].clientY;
-            var deltaY = touchStartY - currentY;
-            var absDeltaY = Math.abs(deltaY);
-
-            if (absDeltaY < SWIPE_THRESHOLD) {
-              // Early tracking guard: If we are at the end boundary and the safety timer is active,
-              // kill the micro-movement to prevent layout drifting.
-              if (boundaryLockActive) {
-                var initialDown = deltaY > 0;
-                if ((initialDown && currentStep === TOTAL_STEPS - 1) || (!initialDown && currentStep === 0)) {
-                  e.preventDefault();
-                }
-              }
-              return;
-            }
+            var deltaY = touchStartY - e.touches[0].clientY;
+            if (Math.abs(deltaY) < 30) return;
 
             var goingDown = deltaY > 0;
             var intercept = (goingDown && currentStep < TOTAL_STEPS - 1) ||
                             (!goingDown && currentStep > 0);
 
             if (intercept) {
-              // Active navigation frame inside internal step blocks: intercept cleanly
               e.preventDefault();
-              if (!touchHandled) {
+              if (!stepInProgress) {
                 touchHandled = true;
                 var target   = goingDown ? currentStep + 1 : currentStep - 1;
                 var dir      = goingDown ? 1 : -1;
+                var vh       = window.innerHeight;
 
                 applyStep(target, dir);
-                scrollToStep(target);
-                lockScroll(1200);
 
-                touchStartY = currentY;
-              }
-            } else {
-              // EXIT STRATEGY: The user wants to leave the section.
-              if (boundaryLockActive) {
-                // If the cooldown timer hasn't finished absorbing inertia yet, hold the position.
-                e.preventDefault();
-              } else {
-                // Cooldown over! Let the browser natively scroll up past Step 1 or down past Step 5.
-                // Do NOT call e.preventDefault() here.
+                /* Use scrollAnchor (captured at touchstart) instead of
+                   live getBoundingClientRect to avoid stale-layout bugs
+                   on mobile that cause page teleportation. */
+                var targetY = scrollAnchor + target * vh;
+                window.scrollTo({ top: targetY, behavior: 'instant' });
+                scrollAnchor = targetY;
+
+                touchStartY = e.touches[0].clientY;
               }
             }
           }, { passive: false });
