@@ -2090,6 +2090,7 @@ responsive
   position: relative;
   width: 100%;
   min-height: 400px;
+  height: 400px;
   border-radius: 20px;
   overflow: hidden;
   display: flex;
@@ -2163,6 +2164,7 @@ responsive
   .about-video-card {
     padding: 30px 20px;
     min-height: auto;
+    height: 500px;
   }
   .about-card-content {
     /* RESET: Expands to full available width on mobile so text doesn't get squeezed */
