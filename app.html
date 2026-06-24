@@ -1006,7 +1006,8 @@ https://templatemo.com/tm-569-edu-meeting
             return (rect.top <= window.innerHeight * 0.5 && rect.bottom >= window.innerHeight * 0.5);
           }
 
-          function lockScroll(duration) {
+          function lockScroll() {
+            var LOCK_MS = isMobile() ? 900 : 700;
             scrollLocked = true;
             stepInProgress = true;
 
@@ -1025,9 +1026,9 @@ https://templatemo.com/tm-569-edu-meeting
               if (boundaryLockActive) {
                 boundaryLockTimeout = setTimeout(function() {
                   boundaryLockActive = false;
-                }, 800); // 800ms absorption block to catch immediate touch inertia remnants
+                }, 800);
               }
-            }, duration);
+            }, LOCK_MS);
           }
 
           window.addEventListener('touchstart', function (e) {
