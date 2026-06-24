@@ -557,7 +557,7 @@ https://templatemo.com/tm-569-edu-meeting
         <div class="col-lg-12">
           <div class="about-video-card">
             
-            <video autoplay muted loop playsinline class="about-card-video">
+            <video autoplay muted loop playsinline preload="auto" id="about-bg-video" class="about-card-video">
               <source src="assets/video/about.mp4" type="video/mp4">
               Your browser does not support the video tag.
             </video>
@@ -3004,6 +3004,30 @@ https://templatemo.com/tm-569-edu-meeting
         }
       }
     })();
+    </script>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var aboutVid = document.getElementById("about-bg-video");
+      if (aboutVid) {
+        aboutVid.muted = true;
+        aboutVid.playsInline = true;
+
+        var playPromise = aboutVid.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(function (error) {
+            document.body.addEventListener('touchstart', function() {
+              aboutVid.play();
+            }, { once: true });
+          });
+        }
+
+        aboutVid.addEventListener('ended', function () {
+          aboutVid.currentTime = 0;
+          aboutVid.play();
+        }, false);
+      }
+    });
     </script>
 
 </body>
