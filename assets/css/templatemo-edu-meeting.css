@@ -2692,6 +2692,15 @@ responsive
    Responsive — tablet / mobile
 --------------------------------------------------------------- */
 @media (max-width: 991px) {
+  .core-modes-heading-wrapper {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    order: -2;
+    padding: clamp(10px, 3vh, 20px) 16px clamp(6px, 2vh, 10px);
+  }
+
   .app-sticky-frame {
     position: -webkit-sticky;
     position: sticky;
@@ -2759,35 +2768,40 @@ responsive
   }
 
   .wheel-wrapper {
-    width: 240px;
-    height: 240px;
-    margin-top: 160px;
+    width: clamp(180px, min(60vw, 40dvh), 280px);
+    height: clamp(180px, min(60vw, 40dvh), 280px);
+    margin-top: clamp(20px, 4dvh, 60px);
   }
 
   .wheel-ring {
-    width: 200px;
-    height: 200px;
+    width: clamp(150px, min(50vw, 33dvh), 230px);
+    height: clamp(150px, min(50vw, 33dvh), 230px);
   }
 
   .wheel-orb {
-    width: 60px;
-    height: 60px;
+    width: clamp(50px, 15vw, 70px);
+    height: clamp(50px, 15vw, 70px);
     box-shadow: 0 0 20px rgba(245,164,37,0.45), 0 0 40px rgba(161,44,47,0.25);
   }
 
   .orb-label {
-    font-size: 7px;
+    font-size: clamp(6px, 1.8vw, 9px);
     letter-spacing: 1px;
   }
 
   .orb-name {
-    font-size: 8px;
+    font-size: clamp(8px, 2.2vw, 11px);
   }
 
-  .wheel-node:nth-child(1) { top: 0px;   left: 60px; }
-  .wheel-node:nth-child(2) { top: 60px;  right: 0px; }
-  .wheel-node:nth-child(3) { bottom: 0px; left: 60px; }
-  .wheel-node:nth-child(4) { top: 60px;  left: 0px;  }
+  .wheel-node {
+    width: clamp(50px, 16vw, 80px);
+    height: clamp(50px, 16vw, 80px);
+  }
+
+  .wheel-node:nth-child(1) { top: 0%;    left: 50%; transform: translate(-50%, 0); }
+  .wheel-node:nth-child(2) { top: 50%;   right: 0%; transform: translate(0, -50%); }
+  .wheel-node:nth-child(3) { bottom: 0%; left: 50%; transform: translate(-50%, 0); }
+  .wheel-node:nth-child(4) { top: 50%;   left: 0%;  transform: translate(0, -50%); }
 
   .step-dots {
     display: flex;
@@ -2803,25 +2817,25 @@ responsive
   }
 
   .mode-section-heading {
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: clamp(14px, 4.2vw, 18px);
+    margin-bottom: clamp(6px, 1.5vh, 10px);
   }
 
   .mode-card h3 {
-    font-size: 18px;
-    margin-bottom: 8px;
+    font-size: clamp(15px, 4.5vw, 18px);
+    margin-bottom: clamp(5px, 1.2vh, 8px);
   }
 
   .mode-card p {
-    font-size: 13px;
+    font-size: clamp(11px, 3.2vw, 13px);
     line-height: 1.6;
   }
 
   .mode-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 20px;
-    margin-bottom: 10px;
+    width: clamp(36px, 10vw, 44px);
+    height: clamp(36px, 10vw, 44px);
+    font-size: clamp(16px, 4.5vw, 20px);
+    margin-bottom: clamp(6px, 1.5vh, 10px);
   }
 
   .mode-progress-bar {
@@ -3605,19 +3619,19 @@ section.app-heading-page h6.app-sub-quote {
 }
 
 .core-modes-title {
-  font-size: 36px;
+  font-size: clamp(20px, 6vw, 36px);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: #ffffff;
-  margin-bottom: 12px;
+  margin-bottom: clamp(6px, 1.5vh, 12px);
 }
 
 .core-modes-subtitle {
-  font-size: 17px;
+  font-size: clamp(13px, 3.6vw, 17px);
   font-weight: 500;
   color: rgba(255, 255, 255, 0.75);
-  margin-bottom: 16px;
+  margin-bottom: clamp(8px, 2vh, 16px);
 }
 
 .core-modes-subtitle span {
@@ -6782,11 +6796,6 @@ section.learning-process .container {
   .toppers-wave-divider::before {
     background-attachment: scroll;
   }
-}
-
-@media (max-width: 400px) {
-  .wheel-wrapper { width: 260px; height: 260px; }
-  .wheel-ring { width: 220px; height: 220px; }
 }
 
 /* ── Mobile background scaling correction ── */
